@@ -1,47 +1,42 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { Temporal } from 'temporal-polyfill'
+import usePioneerMenu from './composables/usePioneerMenu'
+import { onMounted, ref } from 'vue'
+import useConfiguration from './composables/useConfiguration'
+import { useRouter } from 'vue-router'
+import DeviceLayout from './layouts/DeviceLayout.vue'
+import RequestFullscreen from './components/RequestFullscreen.vue'
+
+const day = ref(Temporal.Now.plainDateISO())
+const startDate = ref<string>(day.value.toString())
+const { menuData, date, venues, loading } = usePioneerMenu(startDate)
+
+const prevDay = () => {
+  day.value = day.value.subtract({ days: 1 })
+  startDate.value = day.value.toString()
+}
+const nextDay = () => {
+  day.value = day.value.add({ days: 1 })
+  startDate.value = day.value.toString()
+}
+
+const { hasConfig, deviceDimension } = useConfiguration()
+
+const router = useRouter()
+onMounted(() => {
+  if (!hasConfig) {
+    router.push('/config')
+  }
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <RequestFullscreen>
+    <div class="min-h-dvh grid place-content-center">
+      <span v-if="!deviceDimension">This device has not been configured</span>
+      <DeviceLayout v-else :device-dimension show-bezels>
+        <RouterView />
+      </DeviceLayout>
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  </RequestFullscreen>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
