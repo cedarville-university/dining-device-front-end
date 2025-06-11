@@ -1,0 +1,13 @@
+export const allergenLabels = new Map<string, string>([
+  ['https://my.pcconline.com/pccoffice/menu/images/hasPeanut.png', 'contains peanuts'],
+  ['https://my.pcconline.com/pccoffice/menu/images/isHealthy.png', 'healthy choice'],
+  ['https://my.pcconline.com/pccoffice/menu/images/isChef.png', 'chef inspired'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasSoy.png', 'contains soy'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasTreenut.png', 'contains treenuts'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasGluten.png', 'contains gluten'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasDairy.png', 'contains dairy'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasEgg.png', 'contains eggs'],
+  ['https://my.pcconline.com/pccoffice/menu/images/noGluten.png', 'gluten friendly'],
+  ['https://my.pcconline.com/pccoffice/menu/images/isVegetarian.png', 'vegetarian'],
+  ['https://my.pcconline.com/pccoffice/menu/images/isVegan.png', 'vegan'],
+])

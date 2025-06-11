@@ -1,54 +1,57 @@
 import Dexie, { type EntityTable } from 'dexie'
 
-interface Configuration {
+interface TConfiguration {
   id: number
   orientation: 'portrait' | 'landscape'
-  device: Device
-  menus: ConfigMenu[]
+  device: TDevice
+  menus: TConfigMenu[]
 }
 
-interface Device {
+interface TDevice {
   name: string
   model: string
-  dimensions: DeviceDimension[]
+  dimensions: TDeviceDimension[]
 }
 
-interface DeviceDimension {
+interface TDeviceDimension {
   orientation: 'portrait' | 'landscape'
   width: number
   height: number
 }
 
-interface ConfigMenu {
+interface TConfigMenu {
   name: string
   startTime: string
   endTime: string
 }
 
-interface Menu {
+interface TMenu {
   id: number
   date: string
-  venues: Venue[]
+  venues: TVenue[]
 }
 
-interface Venue {
+interface TVenue {
+  id: number
   name: string
-  items: MenuItem[]
+  items: TMenuItem
 }
 
-interface MenuItem {
+interface TMenuItem {
+  id: number
   name: string
   allergens: string[]
 }
 
 const db = new Dexie('dining-menu') as Dexie & {
-  coniguration: EntityTable<Configuration, 'id'>
-  menus: EntityTable<Menu, 'id'>
+  configuration: EntityTable<TConfiguration, 'id'>
+  menus: EntityTable<TMenu, 'id'>
 }
+
 db.version(1).stores({
-  menus: '++id, date',
   configuration: '++id',
+  menus: '++id, date', // Table for dates
 })
 
-export type { Menu, Venue, MenuItem, Configuration, Device, DeviceDimension, ConfigMenu }
+export type { TMenu, TVenue, TMenuItem, TConfiguration, TDevice, TDeviceDimension, TConfigMenu }
 export { db }

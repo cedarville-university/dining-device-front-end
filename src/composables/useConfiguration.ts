@@ -1,8 +1,8 @@
-import type { Configuration } from '@/db'
+import { db, type TConfiguration } from '@/db'
 import { Temporal } from 'temporal-polyfill'
 import { computed, onMounted, ref } from 'vue'
 
-const configurationData: Configuration = {
+const configurationData: TConfiguration = {
   id: 1,
   orientation: 'landscape',
   device: {
@@ -24,24 +24,29 @@ const configurationData: Configuration = {
   menus: [
     {
       name: 'Lunch Homecooking',
-      startTime: '10:00',
+      startTime: '08:00',
       endTime: '14:00',
     },
     {
       name: 'Dinner Homecooking',
-      startTime: '16:30',
-      endTime: '22:00',
+      startTime: '15:30',
+      endTime: '23:59',
     },
   ],
 }
 
 export default function useConfiguration() {
-  const configuration = ref<Configuration>()
-  onMounted(() => {
-    Promise.resolve(configurationData).then((config) => {
-      configuration.value = config
-    })
-  })
+  const configuration = ref<TConfiguration>()
+
+  async function init() {
+    configuration.value = await db.configuration.limit(1).first()
+    if (!configuration.value) {
+      await db.configuration.add(configurationData)
+      configuration.value = await db.configuration.limit(1).first()
+    }
+  }
+
+  init()
 
   const hasConfig = computed(() => !!configuration?.value)
 

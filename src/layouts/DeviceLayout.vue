@@ -25,6 +25,10 @@ const style = computed(
     }"
     class="overflow-auto w-(--device-width) h-(--device-height) box-content bg-gray-100"
   >
-    <slot :deviceWidth="dimensions.width" :deviceHeight="dimensions.height" />
+    <div
+      class="overflow-scroll h-[calc(var(--device-height)-var(--header-height))] overscroll-contain space-y-4"
+    >
+      <slot :deviceWidth="dimensions.width" :deviceHeight="dimensions.height" />
+    </div>
   </div>
 </template>

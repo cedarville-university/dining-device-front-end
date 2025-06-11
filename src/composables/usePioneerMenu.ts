@@ -1,26 +1,30 @@
 import { Temporal } from 'temporal-polyfill'
 import { computed, ref, toValue, watchEffect, type MaybeRef } from 'vue'
+import useMenuData, { type Menu } from './useMenuData'
+import { normalizePioneerMenu, transformPioneerMenuToMenu } from '@/functions/transformers'
 
-interface MenuData {
+export interface PioneerMenu {
   date: string
-  venues: Venue[]
+  venues: PioneerVenue[]
 }
 
-interface Venue {
+export interface PioneerVenue {
   venue_name: string
-  menu_items: string | MenuItem[]
+  menu_items: string | PioneerMenuItem[]
 }
 
-interface MenuItem {
+interface PioneerMenuItem {
   item_name: string
   allergens: string[]
 }
 
 export default function usePioneerMenu(
-  startDateRef: MaybeRef<string | undefined> = undefined,
-  endDateRef: MaybeRef<string | undefined> = undefined,
+  startDateRef: MaybeRef<string | undefined> = Temporal.Now.plainDateISO().toString(),
+  endDateRef: MaybeRef<string | undefined> = Temporal.Now.plainDateISO().toString(),
 ) {
-  const menuData = ref<MenuData[]>()
+  const rawPioneerMenuData = ref<PioneerMenu[]>()
+  const menuData = ref<Menu[]>()
+
   const error = ref()
   const loading = ref(false)
 
@@ -43,9 +47,12 @@ export default function usePioneerMenu(
 
     fetch(url.href)
       .then((res) => res.text())
-      .then((js) => {
-        menuData.value = new Function(`${js};return menuData;`)()
-      })
+      .then(
+        (js) =>
+          (rawPioneerMenuData.value = (
+            new Function(`${js};return menuData;`)() as PioneerMenu[]
+          ).map(normalizePioneerMenu)),
+      )
       .catch((e) => {
         error.value = e
       })
@@ -54,11 +61,16 @@ export default function usePioneerMenu(
       })
   })
 
-  const date = computed(() => menuData.value?.[0]?.date)
+  const date = computed(() => rawPioneerMenuData.value?.[0]?.date)
 
-  const menu = computed(() => menuData.value?.find((menus) => menus.date === date.value))
+  const menu = computed(() => rawPioneerMenuData.value?.find((menus) => menus.date === date.value))
 
-  const venues = computed(() => menu.value?.venues)
+  const venues = computed(() =>
+    menu.value?.venues.map((venue) => ({
+      ...venue,
+      venue_name: venue.venue_name.trim(),
+    })),
+  )
 
   return {
     menuData,

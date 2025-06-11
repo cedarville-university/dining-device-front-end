@@ -1,24 +1,9 @@
 <script setup lang="ts">
-import { Temporal } from 'temporal-polyfill'
-import usePioneerMenu from './composables/usePioneerMenu'
 import { onMounted, ref } from 'vue'
 import useConfiguration from './composables/useConfiguration'
 import { useRouter } from 'vue-router'
 import DeviceLayout from './layouts/DeviceLayout.vue'
 import RequestFullscreen from './components/RequestFullscreen.vue'
-
-const day = ref(Temporal.Now.plainDateISO())
-const startDate = ref<string>(day.value.toString())
-const { menuData, date, venues, loading } = usePioneerMenu(startDate)
-
-const prevDay = () => {
-  day.value = day.value.subtract({ days: 1 })
-  startDate.value = day.value.toString()
-}
-const nextDay = () => {
-  day.value = day.value.add({ days: 1 })
-  startDate.value = day.value.toString()
-}
 
 const { hasConfig, deviceDimension } = useConfiguration()
 
