@@ -9,6 +9,7 @@ const routes = [
 
 const router = createRouter({
   history: createMemoryHistory(),
+  // @ts-ignore
   routes,
 })
 
