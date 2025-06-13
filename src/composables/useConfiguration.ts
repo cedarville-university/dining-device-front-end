@@ -5,6 +5,21 @@ import { computed, onMounted, ref } from 'vue'
 const configurationData: TConfiguration = {
   id: 1,
   orientation: 'landscape',
+  layout: {
+    component: 'GridLayout',
+    canvas: {
+      bgColor: 'var(--color-gray-100)',
+    },
+    bezel: {
+      width: 80,
+      bgColor: 'var(--color-black)',
+    },
+    header: {
+      height: 75,
+      bgColor: '#003865',
+      color: 'var(--color-white)',
+    },
+  },
   device: {
     name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
     model: 'MCT-10HPQ',
@@ -25,7 +40,7 @@ const configurationData: TConfiguration = {
     {
       name: 'Lunch Homecooking',
       startTime: '08:00',
-      endTime: '16:00',
+      endTime: '15:30',
     },
     {
       name: 'Dinner Homecooking',
@@ -54,10 +69,10 @@ export default function useConfiguration() {
   const orientation = computed(() => 'landscape')
 
   const allMenus = computed(() => configuration.value?.menus)
-  const activeMenus = computed(() => {
+  const activeMenu = computed(() => {
     const now = Temporal.Now.plainTimeISO().toString()
 
-    return allMenus.value?.filter((menu) => {
+    return allMenus.value?.find((menu) => {
       const startTime = Temporal.PlainTime.from(menu.startTime)
       const endTime = Temporal.PlainTime.from(menu.endTime)
       return (
@@ -66,19 +81,31 @@ export default function useConfiguration() {
       )
     })
   })
+  const upcomingMenu = computed(() => {
+    const now = Temporal.Now.plainTimeISO().toString()
+
+    return allMenus.value?.find((menu) => {
+      const startTime = Temporal.PlainTime.from(menu.startTime)
+      return Temporal.PlainTime.compare(now, startTime) === -1
+    })
+  })
 
   const device = computed(() => configuration.value?.device)
   const deviceDimension = computed(() =>
     device.value?.dimensions?.find((dim) => dim.orientation === orientation.value),
   )
 
+  const layout = computed(() => configuration.value?.layout)
+
   return {
     configuration,
     hasConfig,
     orientation,
+    layout,
     device,
     deviceDimension,
     allMenus,
-    activeMenus,
+    activeMenu,
+    upcomingMenu,
   }
 }

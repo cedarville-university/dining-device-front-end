@@ -3,8 +3,23 @@ import Dexie, { type EntityTable } from 'dexie'
 interface TConfiguration {
   id: number
   orientation: 'portrait' | 'landscape'
+  layout: TLayout
   device: TDevice
   menus: TConfigMenu[]
+}
+
+interface TLayout {
+  component: 'GridLayout'
+  canvas: TLayoutConfig
+  bezel: TLayoutConfig
+  header: TLayoutConfig
+}
+
+interface TLayoutConfig {
+  height?: number
+  width?: number
+  bgColor?: string
+  color?: string
 }
 
 interface TDevice {
@@ -50,7 +65,7 @@ const db = new Dexie('dining-menu') as Dexie & {
 
 db.version(1).stores({
   configuration: '++id',
-  menus: '++id, date', // Table for dates
+  menus: '++id, date',
 })
 
 export type { TMenu, TVenue, TMenuItem, TConfiguration, TDevice, TDeviceDimension, TConfigMenu }

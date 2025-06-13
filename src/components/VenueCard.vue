@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Card from './Card.vue'
 import { allergenLabels } from '@/functions/allergenLabels'
 import type { Venue } from '@/composables/useMenuData'
 import { computed } from 'vue'
@@ -9,8 +8,8 @@ interface Props {
   venue?: Venue
 }
 
-const { orientation } = useConfiguration()
 const { venue } = defineProps<Props>()
+const { orientation } = useConfiguration()
 
 const cardWidth = computed(() => {
   if (!venue?.items) return
@@ -44,10 +43,9 @@ const cardWidth = computed(() => {
 </script>
 
 <template>
-  <div v-if="venue" class="max-h-(--view-height) overflow-y-auto" style="--h-height: 32px">
-    <h2 class="font-semibold text-2xl my-2 px-4">{{ venue.name }}</h2>
+  <div v-if="venue" class="max-h-(--view-height) overflow-y-auto">
     <ul
-      class="flex flex-wrap gap-4 w-(--view-width) h-[calc(var(--view-height)-var(--h-height)-var(--spacing)*4)] overflow-x-auto no-scrollbar p-4 overscroll-contain"
+      class="flex flex-wrap gap-4 w-(--view-width) h-[calc(var(--view-height))] overflow-x-auto no-scrollbar p-4 overscroll-contain"
     >
       <li
         v-for="menuItem in venue?.items"
