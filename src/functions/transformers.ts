@@ -1,5 +1,6 @@
 import type { Menu } from '@/composables/useMenuData'
 import type { PioneerMenu } from '@/composables/usePioneerMenu'
+import type { TMenu } from '@/db'
 
 export function normalizeMenu(menuData: Menu): Menu {
   return {

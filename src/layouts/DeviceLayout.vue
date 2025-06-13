@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DeviceDimension } from '@/db'
+import type { TDeviceDimension } from '@/db'
 import { computed } from 'vue'
 
 defineSlots<{
@@ -7,13 +7,14 @@ defineSlots<{
 }>()
 
 interface Props {
-  deviceDimension: DeviceDimension
+  deviceDimension: TDeviceDimension
   showBezels?: boolean
 }
 const { deviceDimension: dimensions, showBezels = false } = defineProps<Props>()
 
 const style = computed(
-  () => `--device-width: ${dimensions.width}px; --device-height: ${dimensions.height}px;`,
+  () =>
+    `--device-width: ${dimensions.width}px; --device-height: ${dimensions.height}px; --device-orientation: ${dimensions.orientation}`,
 )
 </script>
 

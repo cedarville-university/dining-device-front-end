@@ -25,7 +25,7 @@ const configurationData: TConfiguration = {
     {
       name: 'Lunch Homecooking',
       startTime: '08:00',
-      endTime: '14:00',
+      endTime: '16:00',
     },
     {
       name: 'Dinner Homecooking',
@@ -50,7 +50,8 @@ export default function useConfiguration() {
 
   const hasConfig = computed(() => !!configuration?.value)
 
-  const orientation = computed(() => configuration.value?.orientation)
+  // const orientation = computed(() => configuration.value?.orientation)
+  const orientation = computed(() => 'landscape')
 
   const allMenus = computed(() => configuration.value?.menus)
   const activeMenus = computed(() => {

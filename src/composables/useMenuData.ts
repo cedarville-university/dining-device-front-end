@@ -1,5 +1,6 @@
 import { db } from '@/db'
-import { onMounted, ref } from 'vue'
+import { Temporal } from 'temporal-polyfill'
+import { computed, onMounted, ref, toValue, watch, watchEffect, type MaybeRef } from 'vue'
 
 export interface Menu {
   id?: number
@@ -7,7 +8,7 @@ export interface Menu {
   venues: Venue[]
 }
 
-interface Venue {
+export interface Venue {
   id?: number
   name: string
   items: MenuItem[]
@@ -22,16 +23,44 @@ interface MenuItem {
 export default function useMenuData() {
   const menuData = ref<Menu>()
 
-  const store = async (menuData: Menu) => {
-    let menu = await db.menus.where('date').equals(menuData.date).first()
-    if (!menu) {
-      // @ts-ignore
-      await db.menus.add(menuData)
-    }
+  const menu = computed(() => menuData.value)
+  const date = computed(() => menu.value?.date)
+  const venues = computed(() => menu.value?.venues)
+
+  const get = (date: string = Temporal.Now.plainDateISO().toString()) => {
+    return db.menus
+      .where('date')
+      .equals(date)
+      .first()
+      .then((menu) => {
+        menuData.value = menu
+        return menu
+      })
+  }
+  const add = (data: Menu) =>
+    // @ts-ignore
+    db.menus.add(data).then((menuId) => ({
+      id: menuId,
+      ...data,
+    }))
+
+  const store = async (data: Menu) => {
+    return get(data.date).then((menu) => {
+      if (!menu) {
+        return add(data).then((menu) => {
+          menuData.value = menu
+          return menu
+        })
+      }
+      return menu
+    })
   }
 
   return {
-    menuData,
+    menu,
+    date,
+    venues,
     store,
+    get,
   }
 }

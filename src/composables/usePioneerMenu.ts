@@ -20,50 +20,44 @@ interface PioneerMenuItem {
 
 export default function usePioneerMenu(
   startDateRef: MaybeRef<string | undefined> = Temporal.Now.plainDateISO().toString(),
-  endDateRef: MaybeRef<string | undefined> = Temporal.Now.plainDateISO().toString(),
 ) {
-  const rawPioneerMenuData = ref<PioneerMenu[]>()
-  const menuData = ref<Menu[]>()
+  const rawPioneerMenuData = ref<PioneerMenu>()
+  const menuData = ref<Menu>()
 
   const error = ref()
   const loading = ref(false)
 
-  watchEffect(() => {
+  const { store } = useMenuData()
+
+  const fetchAndStoreMenu = async (startDate = Temporal.Now.plainDateISO().toString()) => {
     loading.value = true
 
     const url = new URL('https://oncampusdining.com/api/menu/js/?campus=cedarville')
 
-    const startDate = toValue(startDateRef)
-    if (startDate) {
-      url.searchParams.append('startDate', startDate)
-    }
-
-    const endDate = toValue(endDateRef)
-    if (endDate) {
-      url.searchParams.append('endDate', endDate)
-    }
-
+    url.searchParams.append('startDate', startDate)
     url.searchParams.append('_t', Temporal.Now.instant().epochMilliseconds.toString())
 
-    fetch(url.href)
+    return fetch(url.href)
       .then((res) => res.text())
-      .then(
-        (js) =>
-          (rawPioneerMenuData.value = (
-            new Function(`${js};return menuData;`)() as PioneerMenu[]
-          ).map(normalizePioneerMenu)),
-      )
+      .then(async (js) => {
+        rawPioneerMenuData.value = normalizePioneerMenu(
+          (new Function(`${js};return menuData;`)() as PioneerMenu[])?.[0],
+        )
+        menuData.value = await store(transformPioneerMenuToMenu(rawPioneerMenuData.value))
+        return menuData.value
+      })
       .catch((e) => {
         error.value = e
+        return e
       })
       .finally(() => {
         loading.value = false
       })
-  })
+  }
 
-  const date = computed(() => rawPioneerMenuData.value?.[0]?.date)
+  const date = computed(() => rawPioneerMenuData.value?.date)
 
-  const menu = computed(() => rawPioneerMenuData.value?.find((menus) => menus.date === date.value))
+  const menu = computed(() => rawPioneerMenuData.value)
 
   const venues = computed(() =>
     menu.value?.venues.map((venue) => ({
@@ -73,6 +67,7 @@ export default function usePioneerMenu(
   )
 
   return {
+    fetchAndStoreMenu,
     menuData,
     date,
     venues,

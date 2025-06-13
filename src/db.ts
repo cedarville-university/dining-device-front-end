@@ -34,7 +34,7 @@ interface TMenu {
 interface TVenue {
   id: number
   name: string
-  items: TMenuItem
+  items: TMenuItem[]
 }
 
 interface TMenuItem {

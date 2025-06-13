@@ -1,16 +1,48 @@
 <script setup lang="ts">
-import Card from '@/components/Card.vue'
+import Spinner from '@/components/icons/Spinner.vue'
 import VenueCard from '@/components/VenueCard.vue'
 import useConfiguration from '@/composables/useConfiguration'
-import usePioneerMenu, { type PioneerVenue } from '@/composables/usePioneerMenu'
-import { LoaderCircle } from 'lucide-vue-next'
+import useMenuData, { type Menu, type Venue } from '@/composables/useMenuData'
+import usePioneerMenu from '@/composables/usePioneerMenu'
+import { Cog6ToothIcon } from '@heroicons/vue/20/solid'
 import { Temporal } from 'temporal-polyfill'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 
-const { allMenus, activeMenus } = useConfiguration()
-const { date, venues, loading } = usePioneerMenu()
+const { activeMenus } = useConfiguration()
 
-const getVenue = (venueName: string): PioneerVenue | undefined =>
-  venues.value?.find((venue) => venue.venue_name === venueName)
+const date = ref(Temporal.Now.plainDateISO())
+const prev = () => (date.value = date.value.subtract({ days: 1 }))
+const next = () => (date.value = date.value.add({ days: 1 }))
+
+const menu = ref<Menu>()
+const { get } = useMenuData()
+const { fetchAndStoreMenu } = usePioneerMenu()
+
+const loading = ref(false)
+
+watchEffect(async () => {
+  try {
+    menu.value = await get(date.value.toString())
+    if (!menu.value) {
+      loading.value = true
+      menu.value = await fetchAndStoreMenu(date.value.toString())
+    }
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+  }
+})
+
+const activeVenues = computed(() => {
+  const activeVenueNames = activeMenus.value?.map((m) => m.name)
+
+  if (activeVenueNames && activeVenueNames.length > 0) {
+    return menu.value?.venues.filter((v) => activeVenueNames.includes(v.name))
+  }
+
+  return []
+})
 </script>
 
 <template>
@@ -21,37 +53,34 @@ const getVenue = (venueName: string): PioneerVenue | undefined =>
       <h1 class="text-white">Menu Data</h1>
 
       <div class="flex gap-1 items-center">
-        <LoaderCircle v-if="loading" class="animate-spin text-white" />
-        <span class="text-white">{{ Temporal.Now.plainDateISO().toLocaleString() }}</span>
+        <Spinner v-if="loading" class="text-white" />
+        <RouterLink :to="{ name: 'config' }" class="text-white px-2 py-1">
+          <Cog6ToothIcon class="size-5" />
+        </RouterLink>
+        <div class="flex items-center border rounded text-white">
+          <button class="px-2 py-1" @click="prev">Prev</button>
+          <div class="text-white border-x px-2 py-1">
+            {{ date.toLocaleString() }}
+          </div>
+          <button class="px-2 py-1" @click="next">Next</button>
+        </div>
       </div>
     </header>
     <div
-      class="p-4 overflow-scroll h-[calc(var(--device-height)-var(--header-height))] overscroll-contain space-y-4"
+      v-if="!loading"
+      class="h-[calc(var(--device-height)-var(--header-height))] overscroll-contain space-y-4"
+      style="
+        --view-width: calc(var(--device-width));
+        --view-height: calc(var(--device-height) - var(--header-height));
+      "
     >
-      <Card title="Device Setup">
-        <h3>All Menus</h3>
-        <ul>
-          <li v-for="station in allMenus" :key="station.name + station.startTime + station.endTime">
-            {{ station.name }} ({{ station.startTime }} - {{ station.endTime }})
-          </li>
-        </ul>
-
-        <h3>Active Menus</h3>
-        <ul>
-          <li
-            v-for="station in activeMenus"
-            :key="station.name + station.startTime + station.endTime"
-          >
-            {{ station.name }} ({{ station.startTime }} - {{ station.endTime }})
-          </li>
-        </ul>
-      </Card>
-
-      <VenueCard
-        v-for="menu in activeMenus"
-        :key="menu.name + menu.startTime + menu.endTime"
-        :venue="getVenue(menu.name)!"
-      />
+      <div
+        v-if="activeVenues?.length === 0"
+        class="font-bold grid h-full place-content-center text-2xl w-full"
+      >
+        0 active venues
+      </div>
+      <VenueCard v-else v-for="venue in activeVenues" :key="venue.name" :venue />
     </div>
   </div>
 </template>
