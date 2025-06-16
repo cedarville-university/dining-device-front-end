@@ -54,7 +54,7 @@ const dataAttributes = computed(() => ({
   <div
     :style
     v-bind="dataAttributes"
-    class="group/device @container/device w-(--device-width) h-(--device-height) box-content bg-(--canvas-bg) border-(length:--bezel-width) border-(color:--bezel-bg) rounded-(--bezel-radius)"
+    class="group/device @container/device w-(--device-width) relative h-(--device-height) box-content bg-(--canvas-bg) border-(length:--bezel-width) border-(color:--bezel-bg) rounded-(--bezel-radius)"
   >
     <slot />
   </div>

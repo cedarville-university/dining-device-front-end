@@ -42,24 +42,22 @@ const exitFullscreen = () => {
 </script>
 
 <template>
-  <PageHeader :title="activeVenue?.name ?? 'None'">
-    <div class="flex items-center gap-2 text-white">
-      <Spinner v-if="loading" class="text-white" />
-      <AppButton to="/config">
-        <Cog6ToothIcon class="size-6" />
-      </AppButton>
-      <AppButton v-if="!inFullScreen" @click="enterFullscreen"> Enter Fullscreen </AppButton>
-      <AppButton v-else @click="exitFullscreen"> Exit Fullscreen </AppButton>
-      <AppButton @click="prev">
-        <ChevronLeftIcon class="size-6" />
-      </AppButton>
-      <div class="text-white text-center rounded bg-white/15 p-2 w-25 border border-white/15">
-        {{ date.toLocaleString() }}
-      </div>
-      <AppButton @click="next">
-        <ChevronRightIcon class="size-6" />
-      </AppButton>
+  <PageHeader :title="activeVenue?.name ?? ''">
+    <Spinner v-if="loading" class="text-white" />
+    <AppButton to="/config/menus">
+      <Cog6ToothIcon class="size-6" />
+    </AppButton>
+    <AppButton v-if="!inFullScreen" @click="enterFullscreen"> Enter Fullscreen </AppButton>
+    <AppButton v-else @click="exitFullscreen"> Exit Fullscreen </AppButton>
+    <AppButton @click="prev">
+      <ChevronLeftIcon class="size-6" />
+    </AppButton>
+    <div class="text-white text-center rounded bg-white/15 p-2 w-25 border border-white/15">
+      {{ date.toLocaleString() }}
     </div>
+    <AppButton @click="next">
+      <ChevronRightIcon class="size-6" />
+    </AppButton>
   </PageHeader>
   <div
     v-if="!loading"

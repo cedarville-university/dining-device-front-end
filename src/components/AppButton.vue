@@ -9,9 +9,10 @@ defineProps<Props>()
 
 const classes = computed(() => [
   'p-2',
-  'active:bg-white/15',
   'border',
   'border-transparent',
+  'bg-white/5',
+  'active:bg-white/15',
   'active:border-white/15',
   'rounded',
   'touch-manipulation',

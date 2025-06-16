@@ -8,16 +8,16 @@ const configurationData: TConfiguration = {
   layout: {
     component: 'GridLayout',
     canvas: {
-      bgColor: 'var(--color-gray-100)',
+      bgColor: '#003865',
     },
     bezel: {
       width: 80,
-      bgColor: 'var(--color-black)',
+      bgColor: '#000000',
     },
     header: {
       height: 75,
       bgColor: '#003865',
-      color: 'var(--color-white)',
+      color: '#ffffff',
     },
   },
   device: {

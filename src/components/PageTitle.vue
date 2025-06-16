@@ -1,0 +1,3 @@
+<template>
+  <h2 class="text-lg font-semibold mb-4"><slot /></h2>
+</template>

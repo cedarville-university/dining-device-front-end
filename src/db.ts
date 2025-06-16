@@ -58,15 +58,31 @@ interface TMenuItem {
   allergens: string[]
 }
 
+interface TVenueName {
+  id: number
+  name: string
+}
+
 const db = new Dexie('dining-menu') as Dexie & {
   configuration: EntityTable<TConfiguration, 'id'>
   menus: EntityTable<TMenu, 'id'>
+  venues: EntityTable<TVenueName, 'id'>
 }
 
 db.version(1).stores({
   configuration: '++id',
   menus: '++id, date',
+  venues: '++id, name',
 })
 
-export type { TMenu, TVenue, TMenuItem, TConfiguration, TDevice, TDeviceDimension, TConfigMenu }
+export type {
+  TMenu,
+  TVenueName,
+  TVenue,
+  TMenuItem,
+  TConfiguration,
+  TDevice,
+  TDeviceDimension,
+  TConfigMenu,
+}
 export { db }
