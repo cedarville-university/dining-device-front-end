@@ -2,10 +2,17 @@ import Dexie, { type EntityTable } from 'dexie'
 
 interface TConfiguration {
   id: number
+  auth: TAuth
   orientation: 'portrait' | 'landscape'
+  showBezel: boolean
   layout: TLayout
   device: TDevice
   menus: TConfigMenu[]
+}
+
+interface TAuth {
+  kiosk: string
+  configuration: string
 }
 
 interface TLayout {
@@ -23,6 +30,7 @@ interface TLayoutConfig {
 }
 
 interface TDevice {
+  id: number
   name: string
   model: string
   dimensions: TDeviceDimension[]
@@ -67,12 +75,14 @@ const db = new Dexie('dining-menu') as Dexie & {
   configuration: EntityTable<TConfiguration, 'id'>
   menus: EntityTable<TMenu, 'id'>
   venues: EntityTable<TVenueName, 'id'>
+  devices: EntityTable<TDevice, 'id'>
 }
 
 db.version(1).stores({
   configuration: '++id',
   menus: '++id, date',
   venues: '++id, name',
+  devices: '++id',
 })
 
 export type {

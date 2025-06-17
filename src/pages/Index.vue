@@ -4,9 +4,23 @@ import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import useConfiguration from '@/composables/useConfiguration'
 import useMenu, { type Venue } from '@/composables/useMenu'
-import { ChevronLeftIcon, ChevronRightIcon, Cog6ToothIcon } from '@heroicons/vue/20/solid'
+import {
+  ArrowRightEndOnRectangleIcon,
+  ArrowsPointingInIcon,
+  ArrowsPointingOutIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Cog6ToothIcon,
+} from '@heroicons/vue/20/solid'
 import { Temporal } from 'temporal-polyfill'
 import { computed, defineAsyncComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const props = defineProps<{
+  date?: string
+}>()
+
+const router = useRouter()
 
 const { activeMenu, upcomingMenu, layout } = useConfiguration()
 
@@ -16,9 +30,13 @@ const layoutComponent = computed(() => {
   return defineAsyncComponent(() => import(`../layouts/${layout.value?.component}.vue`))
 })
 
-const date = ref(Temporal.Now.plainDateISO())
-const prev = () => (date.value = date.value.subtract({ days: 1 }))
-const next = () => (date.value = date.value.add({ days: 1 }))
+const date = computed(() =>
+  props.date ? Temporal.PlainDate.from(props.date) : Temporal.Now.plainDateISO(),
+)
+const prev = () =>
+  router.push({ name: 'home', params: { date: date.value.subtract({ days: 1 }).toString() } })
+const next = () =>
+  router.push({ name: 'home', params: { date: date.value.add({ days: 1 }).toString() } })
 
 const { menu, loading } = useMenu(date)
 
@@ -39,24 +57,44 @@ const exitFullscreen = () => {
   document.exitFullscreen()
   inFullScreen.value = false
 }
+
+const enterKiosk = () => {
+  enterFullscreen()
+  router.push({ name: 'kiosk', params: { date: date.value.toString() } })
+}
 </script>
 
 <template>
   <PageHeader :title="activeVenue?.name ?? ''">
-    <Spinner v-if="loading" class="text-white" />
-    <AppButton to="/config/menus">
-      <Cog6ToothIcon class="size-6" />
+    <Spinner v-if="loading" />
+    <AppButton @click="enterKiosk" variant="secondary" class="flex gap-1 items-center">
+      <ArrowRightEndOnRectangleIcon class="size-5" />
+      Enter Kiosk
     </AppButton>
-    <AppButton v-if="!inFullScreen" @click="enterFullscreen"> Enter Fullscreen </AppButton>
-    <AppButton v-else @click="exitFullscreen"> Exit Fullscreen </AppButton>
+    <AppButton v-if="!inFullScreen" @click="enterFullscreen" variant="secondary">
+      <ArrowsPointingOutIcon class="size-6" />
+      <span class="sr-only">Enter Fullscreen</span>
+    </AppButton>
+    <AppButton v-else @click="exitFullscreen">
+      <ArrowsPointingInIcon class="size-6" />
+      <span class="sr-only">Exit Fullscreen</span>
+    </AppButton>
+    <AppButton to="/config" variant="secondary">
+      <Cog6ToothIcon class="size-6" />
+      <span class="sr-only">Enter Configuration</span>
+    </AppButton>
     <AppButton @click="prev">
       <ChevronLeftIcon class="size-6" />
+      <span class="sr-only">Previous Day</span>
     </AppButton>
-    <div class="text-white text-center rounded bg-white/15 p-2 w-25 border border-white/15">
+    <div
+      class="text-center rounded p-2 w-25 bg-(--header-color)/10 border border-(--header-color)/12"
+    >
       {{ date.toLocaleString() }}
     </div>
     <AppButton @click="next">
       <ChevronRightIcon class="size-6" />
+      <span class="sr-only">Next Day</span>
     </AppButton>
   </PageHeader>
   <div

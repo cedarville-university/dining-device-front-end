@@ -63,7 +63,11 @@ const handleSubmit = async () => {
 
 <template>
   <PageTitle>Menu Setup</PageTitle>
-  <form id="EditForm" @submit.prevent="handleSubmit" class="grid grid-cols-4 gap-4 items-stretch">
+  <form
+    id="EditForm"
+    @submit.prevent="handleSubmit"
+    class="grid grid-cols-2 @[600px]/content:grid-cols-4 gap-4 items-stretch"
+  >
     <button
       @click="addMenu"
       class="flex flex-col gap-2 items-center justify-center w-full aspect-square bg-white rounded-md shadow hover:bg-gray-50 active:bg-gray-50"

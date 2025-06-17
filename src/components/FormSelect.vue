@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends string">
+<script setup lang="ts" generic="T extends string | boolean">
 import { useId } from 'vue'
 
 interface ValueLabel<U> {
@@ -25,7 +25,7 @@ const model = defineModel<T>()
         <option
           v-if="typeof option === 'object' && 'value' in option && 'label' in option"
           :value="option.value"
-          :key="option.value"
+          :key="String(option.value)"
         >
           {{ option.label }}
         </option>

@@ -4,6 +4,7 @@ import { useId } from 'vue'
 interface Props {
   id?: string
   label: string
+  error?: string
   postFix?: string
 }
 
@@ -18,8 +19,10 @@ const model = defineModel()
     <div
       class="flex gap-2 border rounded px-2 py-1 w-min focus-within:outline-solid focus-within:outline-blue-700"
     >
-      <input :id v-model="model" class="outline-none" v-bind="$attrs" />
+      <input :id v-model="model" class="outline-none max-w-full" v-bind="$attrs" />
       <div v-if="postFix" class="text-gray-400">{{ postFix }}</div>
     </div>
+
+    <div v-if="error" class="text-sm text-red-500">{{ error }}</div>
   </div>
 </template>

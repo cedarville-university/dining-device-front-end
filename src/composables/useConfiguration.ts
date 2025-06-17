@@ -1,14 +1,41 @@
-import { db, type TConfiguration } from '@/db'
+import { type TConfiguration, type TDevice } from '@/db'
 import { Temporal } from 'temporal-polyfill'
 import { computed, onMounted, ref } from 'vue'
+import * as Config from '@/models/configuration'
+import * as Device from '@/models/devices'
+
+const deviceData: TDevice[] = [
+  {
+    id: 1,
+    name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
+    model: 'MCT-10HPQ',
+    dimensions: [
+      {
+        orientation: 'landscape',
+        width: 1280,
+        height: 800,
+      },
+      {
+        orientation: 'portrait',
+        width: 800,
+        height: 1280,
+      },
+    ],
+  },
+]
 
 const configurationData: TConfiguration = {
   id: 1,
+  auth: {
+    kiosk: '1234',
+    configuration: '123456',
+  },
   orientation: 'landscape',
+  showBezel: false,
   layout: {
     component: 'GridLayout',
     canvas: {
-      bgColor: '#003865',
+      bgColor: '#efefef',
     },
     bezel: {
       width: 80,
@@ -21,6 +48,7 @@ const configurationData: TConfiguration = {
     },
   },
   device: {
+    id: 1,
     name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
     model: 'MCT-10HPQ',
     dimensions: [
@@ -54,10 +82,15 @@ export default function useConfiguration() {
   const configuration = ref<TConfiguration>()
 
   async function init() {
-    configuration.value = await db.configuration.limit(1).first()
+    // load devices
+    if ((await Device.count()) === 0) {
+      deviceData.forEach(async (device) => await Device.add(device))
+    }
+
+    configuration.value = await Config.get()
     if (!configuration.value) {
-      await db.configuration.add(configurationData)
-      configuration.value = await db.configuration.limit(1).first()
+      await Config.add(configurationData)
+      configuration.value = await Config.get()
     }
   }
 
@@ -65,8 +98,7 @@ export default function useConfiguration() {
 
   const hasConfig = computed(() => !!configuration?.value)
 
-  // const orientation = computed(() => configuration.value?.orientation)
-  const orientation = computed(() => 'landscape')
+  const orientation = computed(() => configuration.value?.orientation)
 
   const allMenus = computed(() => configuration.value?.menus)
   const activeMenu = computed(() => {
@@ -97,7 +129,12 @@ export default function useConfiguration() {
 
   const layout = computed(() => configuration.value?.layout)
 
+  const auth = computed(() => configuration.value?.auth)
+
+  const showBezel = computed(() => configuration.value?.showBezel)
+
   return {
+    auth,
     configuration,
     hasConfig,
     orientation,
@@ -107,5 +144,6 @@ export default function useConfiguration() {
     allMenus,
     activeMenu,
     upcomingMenu,
+    showBezel,
   }
 }

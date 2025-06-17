@@ -3,6 +3,8 @@ import { deepUnref } from '@/functions/deepUnref'
 
 export const get = () => db.configuration.limit(1).first()
 
+export const add = (config: TConfiguration) => db.configuration.add(config)
+
 export const update = (config: TConfiguration) => db.configuration.put(deepUnref(config))
 
 export const updateMenus = (config: TConfiguration, menus: TConfigMenu[]) =>

@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
+import NavLink from '@/components/NavLink.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import useAuth from '@/composables/useAuth'
+import { ArrowLeftStartOnRectangleIcon } from '@heroicons/vue/20/solid'
+
+const { logout } = useAuth()
 </script>
 
 <template>
   <PageHeader title="Device Configuration">
-    <AppButton to="/"> Back Home </AppButton>
+    <AppButton to="/" variant="secondary" class="flex gap-1 items-center" @click="logout">
+      <ArrowLeftStartOnRectangleIcon class="size-5" />
+      Exit Configuration
+    </AppButton>
   </PageHeader>
   <div class="grid grid-cols-4 h-full">
     <aside
@@ -14,22 +22,13 @@ import PageHeader from '@/components/PageHeader.vue'
       <nav>
         <ul class="flex flex-col gap-2">
           <li class="flex">
-            <RouterLink
-              to="/config/device"
-              class="px-4 py-2 bg-gray-500/15 active:bg-gray-500/35 text-lg w-full rounded"
-              active-class="bg-primary text-white active:bg-primary"
-            >
-              Device Setup
-            </RouterLink>
+            <NavLink to="/config/menus"> Menu Setup </NavLink>
           </li>
           <li class="flex">
-            <RouterLink
-              to="/config/menus"
-              class="px-4 py-2 bg-gray-500/15 active:bg-gray-500/35 text-lg w-full rounded"
-              active-class="bg-primary text-white active:bg-primary"
-            >
-              Menu Setup
-            </RouterLink>
+            <NavLink to="/config/device"> Device Setup </NavLink>
+          </li>
+          <li class="flex">
+            <NavLink to="/config/auth"> Auth Setup </NavLink>
           </li>
         </ul>
       </nav>

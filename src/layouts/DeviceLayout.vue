@@ -52,6 +52,7 @@ const dataAttributes = computed(() => ({
 
 <template>
   <div
+    id="DeviceRoot"
     :style
     v-bind="dataAttributes"
     class="group/device @container/device w-(--device-width) relative h-(--device-height) box-content bg-(--canvas-bg) border-(length:--bezel-width) border-(color:--bezel-bg) rounded-(--bezel-radius)"

@@ -9,7 +9,7 @@ defineProps<Props>()
 <template>
   <header
     id="PageHeader"
-    class="group/header @container/header px-4 p-1 flex items-center justify-between h-(--header-height) bg-(--header-bg) text-(--header-color)"
+    class="group/header @container/header px-4 p-1 flex items-center justify-between h-(--header-height) bg-(--header-bg) text-(--header-color) shadow relative z-10"
   >
     <h1 class="text-2xl">{{ title }}</h1>
 
