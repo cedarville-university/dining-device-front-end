@@ -4,14 +4,29 @@ import PageHeader from '@/components/PageHeader.vue'
 import useConfiguration from '@/composables/useConfiguration'
 import useMenu, { type Venue } from '@/composables/useMenu'
 import { Temporal } from 'temporal-polyfill'
-import { computed, defineAsyncComponent, onUnmounted, ref } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps<{
   date?: string
 }>()
 
 const { activeMenu, upcomingMenu, layout, auth } = useConfiguration()
+
+let timeout = 0
+const handleReload = () => {
+  router.replace({ name: 'kiosk', params: { date: props.date } })
+  timeout = setTimeout(handleReload, 5000)
+}
+onMounted(() => {
+  timeout = setTimeout(handleReload, 5000)
+})
+onUnmounted(() => {
+  clearTimeout(timeout)
+  exitFullscreen()
+})
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -34,10 +49,8 @@ const activeVenue = computed((): Venue | undefined => {
 })
 
 const exitFullscreen = () => {
-  document.exitFullscreen()
+  if (document.fullscreenElement) document.exitFullscreen()
 }
-
-const router = useRouter()
 
 let kioskPin = ''
 let timeoutId = 0
@@ -46,7 +59,6 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   kioskPin += num
 
   if (kioskPin === auth.value?.kiosk) {
-    exitFullscreen()
     router.replace({ name: 'home' })
   }
 

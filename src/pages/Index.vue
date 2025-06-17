@@ -48,14 +48,19 @@ const activeVenue = computed((): Venue | undefined => {
   }
 })
 
-const inFullScreen = ref(false)
+const inFullScreen = ref(!!document.fullscreenElement)
+
 const enterFullscreen = () => {
-  document.documentElement.requestFullscreen()
-  inFullScreen.value = true
+  if (!inFullScreen.value) {
+    inFullScreen.value = true
+    document.documentElement.requestFullscreen()
+  }
 }
 const exitFullscreen = () => {
-  document.exitFullscreen()
-  inFullScreen.value = false
+  if (inFullScreen.value) {
+    inFullScreen.value = false
+    document.exitFullscreen()
+  }
 }
 
 const enterKiosk = () => {
@@ -105,6 +110,5 @@ const enterKiosk = () => {
       0 active venue
     </div>
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
-    <pre v-else>{{ upcomingMenu }}</pre>
   </div>
 </template>
