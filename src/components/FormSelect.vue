@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends string | boolean">
+<script setup lang="ts" generic="T extends string | boolean | number">
 import { useId } from 'vue'
 
 interface ValueLabel<U> {

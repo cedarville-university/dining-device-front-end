@@ -1,8 +1,9 @@
 import { Temporal } from 'temporal-polyfill'
 import { normalizePioneerMenu, transformPioneerMenuToMenu } from './transformers'
 import * as Menus from '@/models/menus'
+import useConfiguration from '@/composables/useConfiguration'
 
-const url = new URL('https://oncampusdining.com/api/menu/js/?campus=cedarville')
+const { apiUrl } = useConfiguration()
 
 export interface PioneerMenu {
   date: string
@@ -20,19 +21,21 @@ export interface PioneerMenuItem {
 }
 
 export const get = async (startDate = Temporal.Now.plainDateISO().toString()) => {
-  if (url.searchParams.has('startDate')) {
-    url.searchParams.set('startDate', startDate)
+  if (!apiUrl.value) return
+
+  if (apiUrl.value.searchParams.has('startDate')) {
+    apiUrl.value.searchParams.set('startDate', startDate)
   } else {
-    url.searchParams.append('startDate', startDate)
+    apiUrl.value.searchParams.append('startDate', startDate)
   }
 
-  if (url.searchParams.has('_t')) {
-    url.searchParams.set('_t', Temporal.Now.instant().epochMilliseconds.toString())
+  if (apiUrl.value.searchParams.has('_t')) {
+    apiUrl.value.searchParams.set('_t', Temporal.Now.instant().epochMilliseconds.toString())
   } else {
-    url.searchParams.append('_t', Temporal.Now.instant().epochMilliseconds.toString())
+    apiUrl.value.searchParams.append('_t', Temporal.Now.instant().epochMilliseconds.toString())
   }
 
-  const res = await fetch(url.href)
+  const res = await fetch(apiUrl.value.href)
   const js = await res.text()
 
   return normalizePioneerMenu((new Function(`${js};return menuData;`)() as PioneerMenu[])?.[0])

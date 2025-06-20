@@ -9,7 +9,6 @@ interface Props {
 }
 
 const { venue } = defineProps<Props>()
-
 const { orientation } = useConfiguration()
 
 const menuItems = computed(() => {

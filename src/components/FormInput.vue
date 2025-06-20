@@ -10,7 +10,7 @@ interface Props {
 
 const { id = useId() } = defineProps<Props>()
 
-const model = defineModel()
+const model = defineModel<string | number>()
 </script>
 
 <template>
@@ -19,7 +19,14 @@ const model = defineModel()
     <div
       class="flex gap-2 border rounded px-2 py-1 w-min focus-within:outline-solid focus-within:outline-blue-700"
     >
-      <input :id v-model="model" class="outline-none max-w-full" v-bind="$attrs" />
+      <textarea
+        v-if="$attrs.type === 'textarea'"
+        :id
+        v-model="model"
+        class="outline-none max-w-full"
+        v-bind="$attrs"
+      ></textarea>
+      <input v-else :id v-model="model" class="outline-none max-w-full" v-bind="$attrs" />
       <div v-if="postFix" class="text-gray-400">{{ postFix }}</div>
     </div>
 

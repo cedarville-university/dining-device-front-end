@@ -1,5 +1,6 @@
 import useAuth from '@/composables/useAuth'
 import Auth from '@/pages/Auth.vue'
+import EditApi from '@/pages/config/EditApi.vue'
 import EditAuth from '@/pages/config/EditAuth.vue'
 import EditDevice from '@/pages/config/EditDevice.vue'
 import EditMenus from '@/pages/config/EditMenus.vue'
@@ -22,6 +23,7 @@ const router = createRouter({
         { path: '/config/menus', name: 'edit-menus', component: EditMenus },
         { path: '/config/device', name: 'edit-device', component: EditDevice },
         { path: '/config/auth', name: 'edit-auth', component: EditAuth },
+        { path: '/config/api', name: 'edit-api', component: EditApi },
       ],
     },
     {

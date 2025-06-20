@@ -4,6 +4,7 @@ import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import useConfiguration from '@/composables/useConfiguration'
 import useMenu, { type Venue } from '@/composables/useMenu'
+import { db } from '@/db'
 import {
   ArrowRightEndOnRectangleIcon,
   ArrowsPointingInIcon,
@@ -22,7 +23,7 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { activeMenu, upcomingMenu, layout } = useConfiguration()
+const { allMenus, activeMenu, upcomingMenu, layout } = useConfiguration()
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -43,11 +44,12 @@ const { menu, loading } = useMenu(date)
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
 })
+
 const activeVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
   for (const venue of validVenues.value) {
-    if (venue.name === activeMenu.value?.name) return venue
+    if (venue.name === activeMenu.value?.venueName?.apiName) return venue
   }
 })
 
@@ -114,9 +116,9 @@ const enterKiosk = () => {
         v-if="validVenues?.length && upcomingMenu"
         class="bg-white rounded-md shadow p-8 space-y-4"
       >
-        <h4 class="text-2xl font-semibold">{{ upcomingMenu.name }}</h4>
+        <h4 class="text-2xl font-semibold">{{ upcomingMenu.venueName?.name }}</h4>
         <div>
-          The next menu will start at
+          The next menu starts at
           <strong>{{ Temporal.PlainTime.from(upcomingMenu.startTime).toLocaleString() }}</strong>
         </div>
       </div>

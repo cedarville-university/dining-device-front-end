@@ -1,106 +1,33 @@
-import { type TConfiguration, type TDevice } from '@/db'
+import { db, type TVenueName, type TConfiguration, type TDevice } from '@/db'
 import { Temporal } from 'temporal-polyfill'
-import { computed, onMounted, ref } from 'vue'
-import * as Config from '@/models/configuration'
-import * as Device from '@/models/devices'
-
-const deviceData: TDevice[] = [
-  {
-    id: 1,
-    name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
-    model: 'MCT-10HPQ',
-    dimensions: [
-      {
-        orientation: 'landscape',
-        width: 1280,
-        height: 800,
-      },
-      {
-        orientation: 'portrait',
-        width: 800,
-        height: 1280,
-      },
-    ],
-  },
-]
-
-const configurationData: TConfiguration = {
-  id: 1,
-  auth: {
-    kiosk: '1234',
-    configuration: '123456',
-  },
-  orientation: 'landscape',
-  showBezel: false,
-  layout: {
-    component: 'GridLayout',
-    canvas: {
-      bgColor: '#efefef',
-    },
-    bezel: {
-      width: 80,
-      bgColor: '#000000',
-    },
-    header: {
-      height: 75,
-      bgColor: '#003865',
-      color: '#ffffff',
-    },
-  },
-  device: {
-    id: 1,
-    name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
-    model: 'MCT-10HPQ',
-    dimensions: [
-      {
-        orientation: 'landscape',
-        width: 1280,
-        height: 800,
-      },
-      {
-        orientation: 'portrait',
-        width: 800,
-        height: 1280,
-      },
-    ],
-  },
-  menus: [
-    {
-      name: 'Lunch Homecooking',
-      startTime: '08:00',
-      endTime: '15:30',
-    },
-    {
-      name: 'Dinner Homecooking',
-      startTime: '15:30',
-      endTime: '23:59',
-    },
-  ],
-}
+import { computed, ref } from 'vue'
+import { get } from '@/models/configuration'
+import { all as allVenues } from '@/models/venues'
 
 export default function useConfiguration() {
   const configuration = ref<TConfiguration>()
 
-  async function init() {
-    // load devices
-    if ((await Device.count()) === 0) {
-      deviceData.forEach(async (device) => await Device.add(device))
-    }
-
-    configuration.value = await Config.get()
-    if (!configuration.value) {
-      await Config.add(configurationData)
-      configuration.value = await Config.get()
-    }
-  }
-
-  init()
+  get().then((conf) => (configuration.value = conf))
 
   const hasConfig = computed(() => !!configuration?.value)
 
   const orientation = computed(() => configuration.value?.orientation)
 
-  const allMenus = computed(() => configuration.value?.menus)
+  const possibleVenues = ref<TVenueName[]>()
+  allVenues().then((v) => {
+    possibleVenues.value = v
+  })
+
+  const allMenus = computed(() =>
+    configuration.value?.menus.map((menu) => {
+      const venueName = possibleVenues.value?.find((v) => v.id === menu.venueId)
+      return {
+        ...menu,
+        venueName,
+      }
+    }),
+  )
+
   const activeMenu = computed(() => {
     const now = Temporal.Now.plainTimeISO().toString()
 
@@ -133,9 +60,14 @@ export default function useConfiguration() {
 
   const showBezel = computed(() => configuration.value?.showBezel)
 
+  const apiUrl = computed(() => {
+    if (configuration.value)
+      return new URL(`${configuration.value.api.url}?campus=${configuration.value.api.campus}`)
+  })
+
   return {
-    reload: init,
     auth,
+    apiUrl,
     configuration,
     hasConfig,
     orientation,

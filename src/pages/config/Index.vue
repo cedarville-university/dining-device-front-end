@@ -30,6 +30,9 @@ const { logout } = useAuth()
           <li class="flex">
             <NavLink to="/config/auth"> Auth Setup </NavLink>
           </li>
+          <li class="flex">
+            <NavLink to="/config/api"> API Setup </NavLink>
+          </li>
         </ul>
       </nav>
     </aside>

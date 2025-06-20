@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue'
-import * as Config from '@/models/configuration'
-import type { TConfiguration, TDevice, TDeviceDimension } from '@/db'
+import { onMounted, reactive, ref } from 'vue'
+import { get as getConfig, update as updateConfig } from '@/models/configuration'
+import type { TConfiguration } from '@/db'
 import PageTitle from '@/components/PageTitle.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import { injectionKey } from '@/App.vue'
 import Alert from '@/components/Alert.vue'
-
-const render = inject(injectionKey)
 
 const configuration = ref<TConfiguration>()
 const kioskAuth = ref<string>()
@@ -23,7 +20,7 @@ const state = reactive({
 })
 
 onMounted(async () => {
-  configuration.value = await Config.get()
+  configuration.value = await getConfig()
   if (configuration.value) {
     kioskAuth.value = configuration.value.auth.kiosk
     configAuth.value = configuration.value.auth.configuration
@@ -70,7 +67,7 @@ const handleSubmit = async () => {
     return
   }
 
-  const result = await Config.update({
+  const result = await updateConfig({
     ...configuration.value,
     auth: {
       kiosk,

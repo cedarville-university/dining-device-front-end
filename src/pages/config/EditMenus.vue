@@ -10,23 +10,21 @@ import FormInput from '@/components/FormInput.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import PageTitle from '@/components/PageTitle.vue'
 
-const configuration = ref<TConfiguration>()
-const menus = ref<TConfigMenu[]>([])
-onMounted(async () => {
-  configuration.value = await Config.get()
-  if (configuration.value) {
-    menus.value = configuration.value.menus.sort((menuA, menuB) => {
-      if (menuA.startTime > menuB.startTime) return 1
-      if (menuA.startTime < menuB.startTime) return -1
-      return 0
-    })
-  }
-})
+const configuration = ref<TConfiguration | undefined>(await Config.get())
+const menus = ref<TConfigMenu[] | undefined>(
+  configuration.value?.menus.sort((menuA, menuB) => {
+    if (menuA.startTime > menuB.startTime) return 1
+    if (menuA.startTime < menuB.startTime) return -1
+    return 0
+  }),
+)
 
 const addMenu = () => {
+  if (!menus.value) menus.value = []
+
   menus.value = [
     {
-      name: venueNames.value?.[0].name,
+      venueId: venueNames.value?.[0].id,
       startTime: '00:00',
       endTime: '00:00',
     },
@@ -36,15 +34,14 @@ const addMenu = () => {
 
 const removeMenu = (menu: TConfigMenu) => {
   const menuIndex = menus.value?.findIndex((m) => {
-    return m.name === menu.name && m.startTime === menu.startTime && m.endTime === menu.endTime
+    return (
+      m.venueId === menu.venueId && m.startTime === menu.startTime && m.endTime === menu.endTime
+    )
   })
   menus.value = menus.value?.filter((_, index) => index !== menuIndex)
 }
 
-const venueNames = ref<TVenueName[]>([])
-onMounted(async () => {
-  venueNames.value = await Venue.all()
-})
+const venueNames = ref<TVenueName[]>(await Venue.all())
 
 const message = ref()
 const handleSubmit = async () => {
@@ -78,13 +75,17 @@ const handleSubmit = async () => {
     </button>
     <div
       v-for="(menu, index) in menus"
-      :key="menu.name + menu.startTime + menu.endTime"
+      :key="menu.venueId + menu.startTime + menu.endTime"
       class="relative flex flex-col gap-2 bg-white p-4 shadow rounded-md"
     >
       <button type="button" @click="removeMenu(menu)" class="absolute right-2 top-2">
         <XCircleIcon class="size-5" />
       </button>
-      <FormSelect label="Name" v-model="menu.name" :options="venueNames.map((v) => v.name)" />
+      <FormSelect
+        label="Name"
+        v-model="menu.venueId"
+        :options="venueNames.map((v) => ({ value: v.id, label: v.name }))"
+      />
       <FormInput
         label="Start Time"
         type="time"

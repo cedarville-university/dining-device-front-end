@@ -1,7 +1,7 @@
 import { db, type TConfigMenu, type TConfiguration } from '@/db'
 import { deepUnref } from '@/functions/deepUnref'
 
-export const get = () => db.configuration.limit(1).first()
+export const get = () => db.configuration.where('id').equals(1).first()
 
 export const add = (config: TConfiguration) => db.configuration.add(config)
 

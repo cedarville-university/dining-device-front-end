@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, ref, toValue, unref } from 'vue'
+import { computed, onMounted, ref, render } from 'vue'
 import * as Config from '@/models/configuration'
 import * as Device from '@/models/devices'
 import type { TConfiguration, TDevice, TDeviceDimension } from '@/db'
@@ -7,10 +7,8 @@ import PageTitle from '@/components/PageTitle.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import { injectionKey } from '@/App.vue'
 import Alert from '@/components/Alert.vue'
-
-const render = inject(injectionKey)
+import colors from 'tailwindcss/colors'
 
 const configuration = ref<TConfiguration>()
 const device = ref()
@@ -23,11 +21,16 @@ const orientation = ref()
 
 const layout = ref()
 
+const colorsPrimary = ref()
+const colorsSecondary = ref()
+const colorsGray = ref()
+
 const showBezel = ref()
 const bezelWidth = ref()
 const bezelBgColor = ref()
 
 const canvasBgColor = ref()
+const canvasColor = ref()
 
 const headerHeight = ref()
 const headerBgColor = ref()
@@ -41,11 +44,16 @@ onMounted(async () => {
 
     layout.value = configuration.value.layout.component
 
+    colorsPrimary.value = configuration.value.layout.colors.primary
+    colorsSecondary.value = configuration.value.layout.colors.secondary
+    colorsGray.value = configuration.value.layout.colors.gray
+
     showBezel.value = configuration.value.showBezel
     bezelWidth.value = configuration.value.layout.bezel.width
     bezelBgColor.value = configuration.value.layout.bezel.bgColor
 
     canvasBgColor.value = configuration.value.layout.canvas.bgColor
+    canvasColor.value = configuration.value.layout.canvas.color
 
     headerHeight.value = configuration.value.layout.header.height
     headerBgColor.value = configuration.value.layout.header.bgColor
@@ -82,8 +90,14 @@ const handleSubmit = async (e: SubmitEvent) => {
     showBezel: showBezel.value,
     layout: {
       component: layout.value,
+      colors: {
+        primary: colorsPrimary.value,
+        secondary: colorsSecondary.value,
+        gray: colorsGray.value,
+      },
       canvas: {
         bgColor: canvasBgColor.value,
+        color: canvasColor.value,
       },
       header: {
         height: headerHeight.value,
@@ -100,7 +114,6 @@ const handleSubmit = async (e: SubmitEvent) => {
 
   if (result) {
     message.value = 'Save successful. Reload the window to see the changes applied.'
-    if ((e.submitter as HTMLButtonElement)?.name === 'rerender') render?.rerender()
   }
 }
 </script>
@@ -157,6 +170,29 @@ const handleSubmit = async (e: SubmitEvent) => {
     </div>
 
     <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
+      <h3 class="font-semibold col-span-full">Colors</h3>
+
+      <FormInput
+        class="row-start-2 col-span-full"
+        label="Primary Color"
+        type="color"
+        v-model="colorsPrimary"
+      />
+      <FormInput
+        class="row-start-3 col-span-full"
+        label="Secondary Color"
+        type="color"
+        v-model="colorsSecondary"
+      />
+      <FormInput
+        class="row-start-4 col-span-full"
+        label="Gray Color"
+        type="color"
+        v-model="colorsGray"
+      />
+    </div>
+
+    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
       <h3 class="font-semibold col-span-full">Header</h3>
       <FormInput
         type="number"
@@ -189,6 +225,12 @@ const handleSubmit = async (e: SubmitEvent) => {
         label="Background Color"
         type="color"
         v-model="canvasBgColor"
+      />
+      <FormInput
+        class="row-start-3 col-span-full"
+        label="Text Color"
+        type="color"
+        v-model="canvasColor"
       />
     </div>
 

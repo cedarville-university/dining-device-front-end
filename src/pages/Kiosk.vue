@@ -101,7 +101,7 @@ const activeVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
   for (const venue of validVenues.value) {
-    if (venue.name === activeMenu.value?.name) return venue
+    if (venue.name === activeMenu.value?.venueName?.apiName) return venue
   }
 })
 
@@ -146,9 +146,9 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
         v-if="validVenues?.length && upcomingMenu"
         class="bg-white rounded-md shadow p-8 space-y-4"
       >
-        <h4 class="text-2xl font-semibold">{{ upcomingMenu.name }}</h4>
+        <h4 class="text-2xl font-semibold">{{ upcomingMenu.venueName?.apiName }}</h4>
         <div>
-          The next menu will start at
+          The next menu starts at
           <strong>{{ Temporal.PlainTime.from(upcomingMenu.startTime).toLocaleString() }}</strong>
         </div>
       </div>

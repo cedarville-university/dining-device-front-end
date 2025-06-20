@@ -12,6 +12,10 @@ const { layout, deviceDimension: dimensions } = useConfiguration()
 const deviceHeight = computed(() => dimensions.value?.height ?? 0)
 const deviceWidth = computed(() => dimensions.value?.width ?? 0)
 
+const primaryColor = computed(() => layout.value?.colors.primary ?? '#003865')
+const secondaryColor = computed(() => layout.value?.colors.secondary ?? '#fcb716')
+const grayColor = computed(() => layout.value?.colors.gray ?? '#efefef')
+
 const headerHeight = computed(() => layout.value?.header.height ?? 0)
 const headerBg = computed(() => layout.value?.header.bgColor ?? '#003865')
 const headerColor = computed(() => layout.value?.header.color ?? 'var(--color-white)')
@@ -20,6 +24,7 @@ const viewHeight = computed(() => deviceHeight.value - headerHeight.value)
 const viewWidth = computed(() => deviceWidth.value)
 
 const canvasBg = computed(() => layout.value?.canvas.bgColor ?? 'var(--color-gray-100)')
+const canvasColor = computed(() => layout.value?.canvas.color ?? 'inherit')
 
 const bezelWidth = computed(() => (showBezels ? (layout.value?.bezel.width ?? 0) : 0))
 const bezelBg = computed(() => layout.value?.bezel.bgColor ?? 'var(--color-black)')
@@ -29,12 +34,16 @@ const style = computed(() => [
   `--device-orientation: ${dimensions.value?.orientation}`,
   `--device-width: ${deviceWidth.value}px`,
   `--device-height: ${deviceHeight.value}px`,
+  `--primary-color: ${primaryColor.value}`,
+  `--secondary-color: ${secondaryColor.value}`,
+  `--gray-color: ${grayColor.value}`,
   `--header-height: ${headerHeight.value}px`,
   `--header-bg: ${headerBg.value}`,
   `--header-color: ${headerColor.value}`,
   `--view-height: ${viewHeight.value}px`,
   `--view-width: ${viewWidth.value}px`,
   `--canvas-bg: ${canvasBg.value}`,
+  `--canvas-color: ${canvasColor.value}`,
   `--bezel-bg: ${bezelBg.value}`,
   `--bezel-width: ${bezelWidth.value}px`,
   `--bezel-radius: ${bezelRadius.value}px`,
