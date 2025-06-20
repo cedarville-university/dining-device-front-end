@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-defineProps<{ to: string }>()
+defineProps<{ to: string | { name: string } }>()
 </script>
 
 <template>

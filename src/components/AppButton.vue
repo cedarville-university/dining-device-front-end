@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  to?: string
+  to?: string | { name: string }
   variant?: 'primary' | 'secondary'
 }
 

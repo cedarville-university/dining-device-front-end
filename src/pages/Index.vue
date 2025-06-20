@@ -89,7 +89,7 @@ const enterKiosk = () => {
       <ArrowsPointingInIcon class="size-6" />
       <span class="sr-only">Exit Fullscreen</span>
     </AppButton>
-    <AppButton to="/config" variant="secondary">
+    <AppButton :to="{ name: 'config' }" variant="secondary">
       <Cog6ToothIcon class="size-6" />
       <span class="sr-only">Enter Configuration</span>
     </AppButton>

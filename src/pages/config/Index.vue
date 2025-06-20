@@ -10,7 +10,12 @@ const { logout } = useAuth()
 
 <template>
   <PageHeader title="Device Configuration">
-    <AppButton to="/" variant="secondary" class="flex gap-1 items-center" @click="logout">
+    <AppButton
+      :to="{ name: 'home' }"
+      variant="secondary"
+      class="flex gap-1 items-center"
+      @click="logout"
+    >
       <ArrowLeftStartOnRectangleIcon class="size-5" />
       Exit Configuration
     </AppButton>
@@ -22,16 +27,16 @@ const { logout } = useAuth()
       <nav>
         <ul class="flex flex-col gap-2">
           <li class="flex">
-            <NavLink to="/config/menus"> Menu Setup </NavLink>
+            <NavLink :to="{ name: 'edit-menus' }"> Menu Setup </NavLink>
           </li>
           <li class="flex">
-            <NavLink to="/config/device"> Device Setup </NavLink>
+            <NavLink :to="{ name: 'edit-device' }"> Device Setup </NavLink>
           </li>
           <li class="flex">
-            <NavLink to="/config/auth"> Auth Setup </NavLink>
+            <NavLink :to="{ name: 'edit-auth' }"> Auth Setup </NavLink>
           </li>
           <li class="flex">
-            <NavLink to="/config/api"> API Setup </NavLink>
+            <NavLink :to="{ name: 'edit-api' }"> API Setup </NavLink>
           </li>
         </ul>
       </nav>
