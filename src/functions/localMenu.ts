@@ -18,7 +18,7 @@ const addToVenues = (venues: Venue[]) => {
     .forEach(async (venue) => {
       const venueName = await db.venues.where('name').equals(venue.name).first()
       if (!venueName) {
-        db.venues.add({ name: venue.name })
+        db.venues.add({ name: venue.name, apiName: venue.name })
       }
     })
 }
