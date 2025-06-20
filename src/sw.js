@@ -4,9 +4,11 @@ import * as Pioneer from '@/functions/pioneerMenu'
 
 precacheAndRoute(self.__WB_MANIFEST)
 
+console.log(self)
+
 function registerPeriodicFetchPioneerMenu() {
   console.log('checking if serviceWorker is ready')
-  navigator.serviceWorker.ready
+  self.ready
     .then((registration) => {
       console.log(registration)
       registration.periodicSync
@@ -20,22 +22,18 @@ function registerPeriodicFetchPioneerMenu() {
     .catch(console.error)
 }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.permissions
-      .query({
-        name: 'periodic-background-sync',
-      })
-      .then((status) => {
-        if (status.state === 'granted') {
-          console.log('granted')
-          registerPeriodicFetchPioneerMenu()
-        } else {
-          console.log('not granted')
-        }
-      })
+navigator.permissions
+  .query({
+    name: 'periodic-background-sync',
   })
-}
+  .then((status) => {
+    if (status.state === 'granted') {
+      console.log('granted')
+      registerPeriodicFetchPioneerMenu()
+    } else {
+      console.log('not granted')
+    }
+  })
 
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'fetch-pioneer-menu') {
