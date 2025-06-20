@@ -19,6 +19,7 @@ jobs:
 
       - name: Create .env file
         run: |
+          echo "VITE_APP_ROOT=/dining-device-front-end/" >> .env
           echo "VITE_API_URL=${{ secrets.API_URL }}" >> .env
           echo "VITE_API_CAMPUS=${{ secrets.API_CAMPUS }}" >> .env
           # Add other variables as needed
