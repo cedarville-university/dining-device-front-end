@@ -28,8 +28,8 @@ export default defineConfig(({ command, mode }) => {
           theme_color: '#003865',
           background_color: '#ffffff',
           display: 'fullscreen',
-          scope: '/',
-          start_url: '/',
+          scope: appRoot,
+          start_url: appRoot,
           icons: [
             {
               src: appRoot + 'icons/apple-touch-icon-57x57.png',
