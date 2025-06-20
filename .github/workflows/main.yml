@@ -17,6 +17,13 @@ jobs:
         with:
           node-version: '20' # Specify your Node.js version
 
+      - name: Create .env file
+        run: |
+          echo "VITE_API_URL=${{ secrets.API_URL }}" >> .env
+          echo "VITE_API_CAMPUS=${{ secrets.API_CAMPUS }}" >> .env
+          # Add other variables as needed
+        shell: bash
+
       - name: Install dependencies
         run: npm install # Or yarn install, depending on your package manager
 
