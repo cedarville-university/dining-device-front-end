@@ -3,15 +3,15 @@ export const injectionKey = Symbol() as InjectionKey<{ rerender: () => void }>
 </script>
 
 <script setup lang="ts">
-import { provide, ref, type InjectionKey } from 'vue'
+import { provide, ref, useId, type InjectionKey } from 'vue'
 import DeviceLayout from './layouts/DeviceLayout.vue'
 import useConfiguration from './composables/useConfiguration'
 
 const { showBezel } = useConfiguration()
 
-const renderKey = ref(crypto.randomUUID())
+const renderKey = ref(useId())
 provide(injectionKey, {
-  rerender: () => (renderKey.value = crypto.randomUUID()),
+  rerender: () => (renderKey.value = useId()),
 })
 </script>
 

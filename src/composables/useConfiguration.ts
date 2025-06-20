@@ -134,6 +134,7 @@ export default function useConfiguration() {
   const showBezel = computed(() => configuration.value?.showBezel)
 
   return {
+    reload: init,
     auth,
     configuration,
     hasConfig,

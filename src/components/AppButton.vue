@@ -9,7 +9,15 @@ interface Props {
 const { variant = 'primary' } = defineProps<Props>()
 
 const classes = computed(() => {
-  const classes = ['py-2', 'px-3', 'rounded', 'border', 'touch-manipulation', 'cursor-pointer']
+  const classes = [
+    'py-2',
+    'px-3',
+    'rounded',
+    'border',
+    'touch-manipulation',
+    'cursor-pointer',
+    'transition-all',
+  ]
 
   switch (variant) {
     case 'primary':

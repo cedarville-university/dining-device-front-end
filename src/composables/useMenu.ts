@@ -1,8 +1,9 @@
-import { get as localGet, store } from '@/functions/localMenu'
-import { get as pioneerFetch } from '@/functions/pioneerMenu'
+import * as Menus from '@/models/menus'
+import * as Pioneer from '@/functions/pioneerMenu'
 import { transformPioneerMenuToMenu } from '@/functions/transformers'
 import { Temporal } from 'temporal-polyfill'
 import { ref, toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
+import type { TMenu } from '@/db'
 
 export interface Menu {
   id?: number
@@ -29,26 +30,29 @@ export default function useMenu(
   const loading = ref(false)
   const error = ref()
 
-  watchEffect(async () => {
+  const fetchMenu = async (date: string) => {
     try {
-      const date = toValue(startDate).toString()
-      data.value = await localGet(date)
-      if (!data.value) {
+      let menuData = await Menus.get(date)
+      if (!menuData) {
         loading.value = true
-        const pioneerData = await pioneerFetch(date)
-        if (pioneerData) {
-          data.value = await store(transformPioneerMenuToMenu(pioneerData))
-        }
+        menuData = (await Pioneer.fetchAndCache(date)) as TMenu
       }
+
+      return menuData
     } catch (e) {
       error.value = e
     } finally {
       loading.value = false
     }
+  }
+
+  watchEffect(async () => {
+    data.value = await fetchMenu(toValue(startDate).toString())
   })
 
   return {
     menu: data,
+    fetchMenu,
     loading,
     error,
   }

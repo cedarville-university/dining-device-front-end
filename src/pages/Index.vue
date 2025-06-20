@@ -40,15 +40,18 @@ const next = () =>
 
 const { menu, loading } = useMenu(date)
 
+const validVenues = computed(() => {
+  return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
+})
 const activeVenue = computed((): Venue | undefined => {
-  if (!menu.value?.venues) return
+  if (!validVenues.value) return
 
-  for (const venue of menu.value?.venues) {
+  for (const venue of validVenues.value) {
     if (venue.name === activeMenu.value?.name) return venue
   }
 })
 
-const inFullScreen = ref(!!document.fullscreenElement)
+const inFullScreen = ref(false)
 
 const enterFullscreen = () => {
   if (!inFullScreen.value) {
@@ -106,8 +109,20 @@ const enterKiosk = () => {
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <div v-if="!activeVenue" class="font-bold grid h-full place-content-center text-2xl w-full">
-      0 active venue
+    <div v-if="!activeVenue" class="grid h-full place-content-center w-full">
+      <div
+        v-if="validVenues?.length && upcomingMenu"
+        class="bg-white rounded-md shadow p-8 space-y-4"
+      >
+        <h4 class="text-2xl font-semibold">{{ upcomingMenu.name }}</h4>
+        <div>
+          The next menu will start at
+          <strong>{{ Temporal.PlainTime.from(upcomingMenu.startTime).toLocaleString() }}</strong>
+        </div>
+      </div>
+      <div v-else class="bg-white rounded-md shadow p-8">
+        No upcoming menus. Check back tomorrow.
+      </div>
     </div>
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
   </div>
