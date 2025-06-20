@@ -106,7 +106,7 @@ const handleInput = (num: string) => {
             }"
           >
             <BackspaceIcon v-if="num === 'Delete'" class="size-5" />
-            <CheckCircleIcon v-else-if="num === 'enter'" class="size-5 text-green-500" />
+            <CheckCircleIcon v-else-if="num === 'Enter'" class="size-5 text-green-500" />
             <span v-else>{{ num }}</span>
           </button>
         </li>
