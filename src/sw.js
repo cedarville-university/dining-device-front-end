@@ -5,6 +5,7 @@ import * as Pioneer from '@/functions/pioneerMenu'
 precacheAndRoute(self.__WB_MANIFEST)
 
 function registerPeriodicFetchPioneerMenu() {
+  console.log('checking if serviceWorker is ready')
   navigator.serviceWorker.ready
     .then((registration) => {
       console.log(registration)
@@ -27,7 +28,7 @@ if ('serviceWorker' in navigator) {
       })
       .then((status) => {
         if (status.state === 'granted') {
-          // Continue registering the periodic sync
+          console.log('granted')
           registerPeriodicFetchPioneerMenu()
         } else {
           console.log('not granted')
