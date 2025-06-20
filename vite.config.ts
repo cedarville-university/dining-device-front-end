@@ -10,17 +10,35 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const appRoot = env.VITE_APP_ROOT
+  const apiUrl = env.VITE_API_URL
 
   return {
     plugins: [
       vue(),
       tailwindcss(),
-      // vueDevTools(),
+      vueDevTools(),
       VitePWA({
         registerType: 'autoUpdate',
-        strategies: 'injectManifest',
+        strategies: 'generateSW',
         srcDir: 'src',
         filename: 'sw.js',
+        workbox: {
+          runtimeCaching: [
+            {
+              handler: 'NetworkOnly',
+              urlPattern: new RegExp(apiUrl),
+              method: 'GET',
+              options: {
+                backgroundSync: {
+                  name: 'fetch-pioneer-menu',
+                  options: {
+                    maxRetentionTime: 6 * 60 * 60 * 1000, // every 6 hours
+                  },
+                },
+              },
+            },
+          ],
+        },
         manifest: {
           name: 'Dining Devive Menu Viewer',
           short_name: 'Menu Viewer',
