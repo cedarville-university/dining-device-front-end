@@ -120,7 +120,6 @@ db.on('populate', async (trans: Transaction) => {
     })
 
     const breakfastId = await trans.table('venues').add({ apiName: 'Breakfast', name: 'Breakfast' })
-    console.log(breakfastId)
     const lunchId = await trans
       .table('venues')
       .add({ apiName: 'Lunch Homecooking', name: 'Lunch Homecooking' })

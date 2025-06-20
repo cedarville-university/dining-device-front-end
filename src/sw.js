@@ -19,18 +19,22 @@ function registerPeriodicFetchPioneerMenu() {
     .catch(console.error)
 }
 
-navigator.permissions
-  .query({
-    name: 'periodic-background-sync',
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.permissions
+      .query({
+        name: 'periodic-background-sync',
+      })
+      .then((status) => {
+        if (status.state === 'granted') {
+          // Continue registering the periodic sync
+          registerPeriodicFetchPioneerMenu()
+        } else {
+          console.log('not granted')
+        }
+      })
   })
-  .then((status) => {
-    if (status.state === 'granted') {
-      // Continue registering the periodic sync
-      registerPeriodicFetchPioneerMenu()
-    } else {
-      console.log('not granted')
-    }
-  })
+}
 
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'fetch-pioneer-menu') {
