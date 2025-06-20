@@ -43,7 +43,7 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const { isLoggedIn } = useAuth()
-  if (!isLoggedIn.value && to.path.startsWith('/config')) {
+  if (!isLoggedIn.value && to.path.startsWith(appRoot + 'config')) {
     return { name: 'auth' }
   }
 })
