@@ -22,7 +22,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: appRoot + '/config',
+      path: appRoot + 'config',
       name: 'config',
       component: ConfigIndex,
       redirect: { name: 'edit-menus' },
@@ -34,7 +34,7 @@ const router = createRouter({
       ],
     },
     {
-      path: '/auth',
+      path: appRoot + 'auth',
       name: 'auth',
       component: Auth,
     },
