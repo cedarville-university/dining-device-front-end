@@ -21,7 +21,7 @@ export default defineConfig(({ command, mode }) => {
         registerType: 'autoUpdate',
         strategies: 'generateSW',
         workbox: {
-          importScripts: ['./registerPeriodicSync.js'],
+          importScripts: [apiUrl + 'registerPeriodicSync.js'],
           runtimeCaching: [
             {
               handler: 'NetworkOnly',
