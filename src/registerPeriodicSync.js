@@ -1,15 +1,10 @@
-import { precacheAndRoute } from 'workbox-precaching'
 import { Temporal } from 'temporal-polyfill'
 import * as Pioneer from '@/functions/pioneerMenu'
 
-precacheAndRoute(self.__WB_MANIFEST)
-
-console.log(self)
-
 function registerPeriodicFetchPioneerMenu() {
   console.log('checking if serviceWorker is ready')
-  self.ready
-    .then((registration) => {
+  navigator.serviceWorker.ready
+    ?.then((registration) => {
       console.log(registration)
       registration.periodicSync
         .register('fetch-pioneer-menu', {

@@ -20,9 +20,8 @@ export default defineConfig(({ command, mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         strategies: 'generateSW',
-        srcDir: 'src',
-        filename: 'sw.js',
         workbox: {
+          importScripts: ['./registerPeriodicSync.js'],
           runtimeCaching: [
             {
               handler: 'NetworkOnly',
