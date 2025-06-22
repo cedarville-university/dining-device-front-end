@@ -21,7 +21,7 @@ export default defineConfig(({ command, mode }) => {
         registerType: 'autoUpdate',
         strategies: 'generateSW',
         workbox: {
-          // importScripts: [appRoot + 'registerPeriodicSync.js'],
+          importScripts: [appRoot + 'registerPeriodicSync.js'],
           runtimeCaching: [
             {
               handler: 'NetworkOnly',
@@ -102,5 +102,23 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     base: process.env.NODE_ENV === 'production' ? '/dining-device-front-end/' : '/',
+    build: {
+      rollupOptions: {
+        output: {
+          chunkFileNames: (chunkFile) => {
+            if (chunkFile.name === 'registerPeriodicSync') {
+              return '[name].js'
+            }
+            return 'assets/[name]-[hash].js'
+          },
+          // entryFileNames: 'assets/[name].js', // Prevents hashing for entry files
+          // chunkFileNames: 'assets/[name].js', // Prevents hashing for code-split chunks
+          // assetFileNames: 'assets/[name].[ext]', // You can choose to hash other assets or not
+          manualChunks: {
+            registerPeriodicSync: ['./src/registerPeriodicSync.js'],
+          },
+        },
+      },
+    },
   }
 })
