@@ -13,5 +13,14 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script type="module">
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/dining-device-front-end/registerPeriodicSync.js', {
+            scope: '/dining-device-front-end/api',
+          })
+        })
+      }
+    </script>
   </body>
 </html>
