@@ -8,10 +8,10 @@ const app = createApp(App)
 app.use(router)
 app.mount('#app')
 
+import { Workbox } from 'workbox-window'
+
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/dining-device-front-end/registerPeriodicSync.js', {
-      scope: '/dining-device-front-end/api',
-    })
-  })
+  const wb = new Workbox('./registerPeriodicSync.js')
+
+  wb.register()
 }
