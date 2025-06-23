@@ -92,7 +92,6 @@ export default defineConfig(({ command, mode }) => {
         },
         devOptions: {
           enabled: false,
-          type: 'module',
         },
       }),
     ],
