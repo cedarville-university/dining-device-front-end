@@ -2,13 +2,12 @@ import { Temporal } from 'temporal-polyfill'
 import * as Pioneer from '@/functions/pioneerMenu'
 
 function registerPeriodicFetchPioneerMenu() {
-  console.log('checking if serviceWorker is ready')
   navigator.serviceWorker.ready
     ?.then((registration) => {
-      console.log(registration)
       registration.periodicSync
         .register('fetch-pioneer-menu', {
-          minInterval: 6 * 60 * 60 * 1000, // every 6 hours
+          // minInterval: 6 * 60 * 60 * 1000, // every 6 hours
+          minInterval: 1 * 60 * 1000, // every minute
         })
         .then(() => {
           console.log('Periodic Sync registered')
@@ -23,10 +22,7 @@ navigator.permissions
   })
   .then((status) => {
     if (status.state === 'granted') {
-      console.log('granted')
       registerPeriodicFetchPioneerMenu()
-    } else {
-      console.log('not granted')
     }
   })
 
