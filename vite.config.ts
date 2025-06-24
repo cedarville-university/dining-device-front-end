@@ -36,7 +36,7 @@ export default defineConfig(({ command, mode }) => {
               },
             },
             {
-              handler: 'NetworkOnly',
+              handler: 'NetworkFirst',
               urlPattern: new RegExp(apiUrl),
               method: 'GET',
               options: {
