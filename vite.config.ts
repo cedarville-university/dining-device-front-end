@@ -25,7 +25,7 @@ export default defineConfig(({ command, mode }) => {
           runtimeCaching: [
             {
               handler: 'NetworkFirst',
-              urlPattern: new RegExp(appRoot + '[kiosk\/]?\d{4}-\d{2}-\d{2}'),
+              urlPattern: new RegExp(appRoot + '\d{4}-\d{2}-\d{2}'),
               method: 'GET',
               options: {
                 backgroundSync: {
