@@ -9,6 +9,5 @@ skipWaiting()
 clientsClaim()
 
 self.addEventListener('activate', (event) => {
-  console.log(event.target.registration)
-  handlePeriodicSyncReg()
+  handlePeriodicSyncReg(event.target.registration)
 })

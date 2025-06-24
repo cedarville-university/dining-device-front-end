@@ -1,29 +1,25 @@
 import { Temporal } from 'temporal-polyfill'
 import * as Pioneer from '@/functions/pioneerMenu'
 
-function registerPeriodicFetchPioneerMenu() {
-  navigator.serviceWorker.ready
-    ?.then((registration) => {
-      registration.periodicSync
-        .register('fetch-pioneer-menu', {
-          // minInterval: 6 * 60 * 60 * 1000, // every 6 hours
-          minInterval: 1 * 60 * 1000, // every minute
-        })
-        .then(() => {
-          console.log('Periodic Sync registered')
-        })
+function registerPeriodicFetchPioneerMenu(registration) {
+  registration.periodicSync
+    .register('fetch-pioneer-menu', {
+      // minInterval: 6 * 60 * 60 * 1000, // every 6 hours
+      minInterval: 1 * 60 * 1000, // every minute
     })
-    .catch(console.error)
+    .then(() => {
+      console.log('Periodic Sync registered')
+    })
 }
 
-export function handlePeriodicSyncReg() {
+export function handlePeriodicSyncReg(registration) {
   navigator.permissions
     .query({
       name: 'periodic-background-sync',
     })
     .then((status) => {
       if (status.state === 'granted') {
-        registerPeriodicFetchPioneerMenu()
+        registerPeriodicFetchPioneerMenu(registration)
       }
     })
 
