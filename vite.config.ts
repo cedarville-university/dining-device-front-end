@@ -19,11 +19,8 @@ export default defineConfig(({ command, mode }) => {
       vueDevTools(),
       VitePWA({
         registerType: 'autoUpdate',
-        strategies: 'injectManifest',
-        srcDir: 'src',
-        filename: 'sw.js',
+        strategies: 'generateSW',
         workbox: {
-          // importScripts: [appRoot + 'registerPeriodicSync.js'],
           runtimeCaching: [
             {
               handler: 'NetworkOnly',
@@ -31,9 +28,9 @@ export default defineConfig(({ command, mode }) => {
               method: 'GET',
               options: {
                 backgroundSync: {
-                  name: 'fetch-pioneer-menu',
+                  name: 'retry-pioneer-fetch',
                   options: {
-                    maxRetentionTime: 6 * 60 * 60 * 1000, // every 6 hours
+                    maxRetentionTime: 24 * 60, // Retry for max of 24 hours (specified in minutes)
                   },
                 },
               },
