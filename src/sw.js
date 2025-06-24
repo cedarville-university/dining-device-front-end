@@ -9,5 +9,6 @@ skipWaiting()
 clientsClaim()
 
 self.addEventListener('activate', (event) => {
+  console.log(event, navigator.serviceWorker)
   handlePeriodicSyncReg()
 })
