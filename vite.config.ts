@@ -24,8 +24,20 @@ export default defineConfig(({ command, mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}', apiUrl + '*'],
           runtimeCaching: [
             {
+              urlPattern: ({ url }) => url.pathname.startsWith('/kiosk/'),
               handler: 'NetworkFirst',
-              urlPattern: new RegExp(appRoot + '\d{4}-\d{2}-\d{2}'),
+              options: {
+                cacheName: 'kiosk-cache',
+                networkTimeoutSeconds: 3,
+                expiration: {
+                  maxEntries: 8,
+                  maxAgeSeconds: 60 * 60 * 24, // 1 day
+                },
+              },
+            },
+            {
+              handler: 'NetworkOnly',
+              urlPattern: new RegExp(apiUrl),
               method: 'GET',
               options: {
                 backgroundSync: {
