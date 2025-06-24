@@ -21,6 +21,7 @@ export default defineConfig(({ command, mode }) => {
         registerType: 'autoUpdate',
         strategies: 'generateSW',
         workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
           runtimeCaching: [
             {
               handler: 'NetworkOnly',
