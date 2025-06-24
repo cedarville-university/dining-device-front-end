@@ -21,34 +21,7 @@ export default defineConfig(({ command, mode }) => {
         registerType: 'autoUpdate',
         strategies: 'generateSW',
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}', apiUrl + '*'],
-          runtimeCaching: [
-            {
-              urlPattern: ({ url }) => url.pathname.startsWith('/kiosk/'),
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'kiosk-cache',
-                networkTimeoutSeconds: 3,
-                expiration: {
-                  maxEntries: 8,
-                  maxAgeSeconds: 60 * 60 * 24, // 1 day
-                },
-              },
-            },
-            {
-              handler: 'NetworkFirst',
-              urlPattern: new RegExp(apiUrl),
-              method: 'GET',
-              options: {
-                backgroundSync: {
-                  name: 'retry-pioneer-fetch',
-                  options: {
-                    maxRetentionTime: 24 * 60, // Retry for max of 24 hours (specified in minutes)
-                  },
-                },
-              },
-            },
-          ],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         },
         manifest: {
           name: 'Dining Devive Menu Viewer',

@@ -94,6 +94,20 @@ const fetchAndCache = () => {
 }
 onMounted(fetchAndCache)
 
+onMounted(() => {
+  window.addEventListener('focus', () => {
+    alert('gained focus')
+  })
+  window.addEventListener('offline', () => {
+    // pause background syncs
+  })
+
+  window.addEventListener('online', () => {
+    // resume background syncs
+    // run syncs immeadiately
+  })
+})
+
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
 })
