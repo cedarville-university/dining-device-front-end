@@ -4,12 +4,9 @@ import * as Pioneer from '@/functions/pioneerMenu'
 function registerPeriodicFetchPioneerMenu(registration) {
   registration.periodicSync
     .register('fetch-pioneer-menu', {
-      // minInterval: 6 * 60 * 60 * 1000, // every 6 hours
-      minInterval: 1 * 60 * 1000, // every minute
+      minInterval: 24 * 60 * 60 * 1000, // try to do a periodic sync at least once every 24 hours
     })
-    .then(() => {
-      console.log('Periodic Sync registered')
-    })
+    .catch(console.error)
 }
 
 export function handlePeriodicSyncReg(registration) {
@@ -23,14 +20,17 @@ export function handlePeriodicSyncReg(registration) {
       }
     })
 
+  // I'm going to fetch the current day plus 5 more future days
+  // I'm not sure if and when the periodic sync will run on the devices
   self.addEventListener('periodicsync', (event) => {
     if (event.tag === 'fetch-pioneer-menu') {
-      console.clear()
       const date = Temporal.Now.plainDateISO()
-      console.log(`fetching data for ${date.toString()}`)
       event.waitUntil(Pioneer.fetchAndCache(date.toString()))
-      console.log(`fetching data for ${date.add({ days: 1 }).toString()}`)
       event.waitUntil(Pioneer.fetchAndCache(date.add({ days: 1 }).toString()))
+      event.waitUntil(Pioneer.fetchAndCache(date.add({ days: 2 }).toString()))
+      event.waitUntil(Pioneer.fetchAndCache(date.add({ days: 3 }).toString()))
+      event.waitUntil(Pioneer.fetchAndCache(date.add({ days: 4 }).toString()))
+      event.waitUntil(Pioneer.fetchAndCache(date.add({ days: 5 }).toString()))
     }
   })
 }
