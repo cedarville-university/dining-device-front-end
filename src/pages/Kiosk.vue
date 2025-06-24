@@ -98,6 +98,7 @@ onMounted(() => {
   window.addEventListener('focus', () => {
     alert('gained focus')
   })
+
   window.addEventListener('offline', () => {
     // pause background syncs
   })
