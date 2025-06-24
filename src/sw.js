@@ -8,4 +8,6 @@ precacheAndRoute(self.__WB_MANIFEST)
 skipWaiting()
 clientsClaim()
 
-handlePeriodicSyncReg()
+self.addEventListener('activate', (event) => {
+  handlePeriodicSyncReg()
+})
