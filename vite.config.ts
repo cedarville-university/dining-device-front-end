@@ -24,7 +24,7 @@ export default defineConfig(({ command, mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}', apiUrl + '*'],
           runtimeCaching: [
             {
-              handler: 'NetworkOnly',
+              handler: 'NetworkFirst',
               urlPattern: new RegExp(apiUrl),
               method: 'GET',
               options: {
