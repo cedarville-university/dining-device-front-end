@@ -85,9 +85,10 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   <PageHeader :title="activeVenue?.name ?? ''">
     <Spinner v-if="loading" />
     <div
-      class="text-center rounded p-2 w-25 bg-(--header-color)/10 border border-(--header-color)/12"
+      class="text-center rounded p-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
     >
       {{ Temporal.Now.plainDateISO().toLocaleString() }}
+      {{ nowTime.toLocaleString() }}
     </div>
   </PageHeader>
   <div
