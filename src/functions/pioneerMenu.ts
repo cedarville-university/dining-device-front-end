@@ -26,6 +26,12 @@ export const get = async (startDate = Temporal.Now.plainDateISO().toString()) =>
 
   const apiUrl = new URL(api.value.url)
 
+  if (apiUrl.searchParams.has('campus')) {
+    apiUrl.searchParams.set('campus', api.value.campus)
+  } else {
+    apiUrl.searchParams.append('campus', api.value.campus)
+  }
+
   if (apiUrl.searchParams.has('startDate')) {
     apiUrl.searchParams.set('startDate', startDate)
   } else {
