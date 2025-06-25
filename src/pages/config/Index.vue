@@ -2,20 +2,18 @@
 import AppButton from '@/components/AppButton.vue'
 import NavLink from '@/components/NavLink.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import useAuth from '@/composables/useAuth'
+import useIdleTimeout from '@/composables/useIdleTimeout'
 import { ArrowLeftStartOnRectangleIcon } from '@heroicons/vue/20/solid'
+import { useRouter } from 'vue-router'
 
-const { logout } = useAuth()
+const router = useRouter()
+// enter the kiosk after an idle period of 1 minute
+useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
 </script>
 
 <template>
   <PageHeader title="Device Configuration">
-    <AppButton
-      :to="{ name: 'home' }"
-      variant="secondary"
-      class="flex gap-1 items-center"
-      @click="logout"
-    >
+    <AppButton :to="{ name: 'home' }" variant="secondary" class="flex gap-1 items-center">
       <ArrowLeftStartOnRectangleIcon class="size-5" />
       Exit Configuration
     </AppButton>

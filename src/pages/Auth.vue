@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import useAuth from '@/composables/useAuth'
+import useIdleTimeout from '@/composables/useIdleTimeout'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { BackspaceIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { storeToRefs } from 'pinia'
@@ -46,6 +47,9 @@ const handleInput = (num: string) => {
       break
   }
 }
+
+// enter the kiosk after an idle period of 5 seconds
+useIdleTimeout(() => router.replace({ name: 'kiosk' }), 5000)
 </script>
 <template>
   <div class="min-h-(--device-height) grid place-content-center">

@@ -3,6 +3,7 @@ import AppButton from '@/components/AppButton.vue'
 import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import useFullscreen from '@/composables/useFullscreen'
+import useIdleTimeout from '@/composables/useIdleTimeout'
 import useMenu, { type Venue } from '@/composables/useMenu'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import {
@@ -60,6 +61,9 @@ const enterKiosk = () => {
   enterFullscreen()
   router.push({ name: 'kiosk' })
 }
+
+// enter the kiosk after an idle period of 1 minute
+useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
 </script>
 
 <template>
