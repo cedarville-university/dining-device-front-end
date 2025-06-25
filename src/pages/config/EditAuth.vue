@@ -6,10 +6,11 @@ import PageTitle from '@/components/PageTitle.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import Alert from '@/components/Alert.vue'
+import { useConfigurationStore } from '@/stores/configurationStore'
 
-const configuration = ref<TConfiguration>()
-const kioskAuth = ref<string>()
-const configAuth = ref<string>()
+const configuration = useConfigurationStore()
+const kioskAuth = ref(configuration.auth?.kiosk)
+const configAuth = ref(configuration.auth?.configuration)
 const state = reactive({
   kiosk: {
     error: '',
@@ -19,18 +20,8 @@ const state = reactive({
   },
 })
 
-onMounted(async () => {
-  configuration.value = await getConfig()
-  if (configuration.value) {
-    kioskAuth.value = configuration.value.auth.kiosk
-    configAuth.value = configuration.value.auth.configuration
-  }
-})
-
 const message = ref()
 const handleSubmit = async () => {
-  if (!configuration.value) return
-
   state.kiosk.error = ''
   state.config.error = ''
 
@@ -67,17 +58,13 @@ const handleSubmit = async () => {
     return
   }
 
-  const result = await updateConfig({
-    ...configuration.value,
+  configuration.update({
     auth: {
       kiosk,
       configuration: config,
     },
   })
-
-  if (result) {
-    message.value = 'Save successful'
-  }
+  message.value = 'Save successful'
 }
 </script>
 
@@ -94,7 +81,8 @@ const handleSubmit = async () => {
         v-model="kioskAuth"
         class="row-start-1 col-span-3 @[600px]/content:col-span-2"
       />
-      <div class="row-start-1 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4 space-y-4">
+      <div class="row-start-1 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
+        <h3 class="font-semibold">Kiosk Mode PIN</h3>
         <div class="text-sm text-gray-500">
           The Kiosk PIN is a 4-digit pin used when exiting kiosk mode. The only allowed digits are
           1-4.
@@ -109,7 +97,8 @@ const handleSubmit = async () => {
         v-model="configAuth"
         class="row-start-2 col-span-3 @[600px]/content:col-span-2"
       />
-      <div class="row-start-2 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4 space-y-4">
+      <div class="row-start-2 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
+        <h3 class="font-semibold">Configuration PIN</h3>
         <div class="text-sm text-gray-500">
           The Configuration PIN is a 6-digit pin used when entering device configuration.
         </div>

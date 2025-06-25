@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import type { MenuItem } from '@/composables/useMenu'
 import Allergen from '@/components/Allergen.vue'
-import { computed } from 'vue'
 
 interface Props {
   item: MenuItem
 }
 
 const { item } = defineProps<Props>()
-
-const allergenCount = computed(() => item.allergens.length)
 </script>
 
 <template>

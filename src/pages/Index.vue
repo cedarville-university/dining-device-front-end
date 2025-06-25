@@ -2,9 +2,9 @@
 import AppButton from '@/components/AppButton.vue'
 import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import useConfiguration from '@/composables/useConfiguration'
+import useFullscreen from '@/composables/useFullscreen'
 import useMenu, { type Venue } from '@/composables/useMenu'
-import { db } from '@/db'
+import { useConfigurationStore } from '@/stores/configurationStore'
 import {
   ArrowRightEndOnRectangleIcon,
   ArrowsPointingInIcon,
@@ -13,8 +13,9 @@ import {
   ChevronRightIcon,
   Cog6ToothIcon,
 } from '@heroicons/vue/20/solid'
+import { storeToRefs } from 'pinia'
 import { Temporal } from 'temporal-polyfill'
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -23,7 +24,7 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { allMenus, activeMenu, upcomingMenu, layout } = useConfiguration()
+const { activeMenu, upcomingMenu, layout } = storeToRefs(useConfigurationStore())
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -53,24 +54,11 @@ const activeVenue = computed((): Venue | undefined => {
   }
 })
 
-const inFullScreen = ref(false)
-
-const enterFullscreen = () => {
-  if (!inFullScreen.value) {
-    inFullScreen.value = true
-    document.documentElement.requestFullscreen()
-  }
-}
-const exitFullscreen = () => {
-  if (inFullScreen.value) {
-    inFullScreen.value = false
-    document.exitFullscreen()
-  }
-}
+const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen()
 
 const enterKiosk = () => {
   enterFullscreen()
-  router.push({ name: 'kiosk', params: { date: date.value.toString() } })
+  router.push({ name: 'kiosk' })
 }
 </script>
 
@@ -81,13 +69,13 @@ const enterKiosk = () => {
       <ArrowRightEndOnRectangleIcon class="size-5" />
       Enter Kiosk
     </AppButton>
-    <AppButton v-if="!inFullScreen" @click="enterFullscreen" variant="secondary">
-      <ArrowsPointingOutIcon class="size-6" />
-      <span class="sr-only">Enter Fullscreen</span>
-    </AppButton>
-    <AppButton v-else @click="exitFullscreen">
+    <AppButton v-if="isFullscreen" @click="exitFullscreen">
       <ArrowsPointingInIcon class="size-6" />
       <span class="sr-only">Exit Fullscreen</span>
+    </AppButton>
+    <AppButton v-else @click="enterFullscreen" variant="secondary">
+      <ArrowsPointingOutIcon class="size-6" />
+      <span class="sr-only">Enter Fullscreen</span>
     </AppButton>
     <AppButton :to="{ name: 'config' }" variant="secondary">
       <Cog6ToothIcon class="size-6" />

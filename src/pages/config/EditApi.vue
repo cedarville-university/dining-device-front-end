@@ -1,39 +1,24 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { get as getConfig, update as updateConfig } from '@/models/configuration'
-import type { TConfiguration } from '@/db'
+import { ref } from 'vue'
 import PageTitle from '@/components/PageTitle.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import Alert from '@/components/Alert.vue'
+import { useConfigurationStore } from '@/stores/configurationStore'
 
-const configuration = ref<TConfiguration>()
-const apiUrl = ref<string>()
-const apiCampus = ref<string>()
-
-onMounted(async () => {
-  configuration.value = await getConfig()
-  if (configuration.value) {
-    apiUrl.value = configuration.value.api.url
-    apiCampus.value = configuration.value.api.campus
-  }
-})
+const configuration = useConfigurationStore()
+const apiUrl = ref(configuration.api?.url)
+const apiCampus = ref(configuration.api?.campus)
 
 const message = ref()
 const handleSubmit = async () => {
-  if (!configuration.value || !apiUrl.value || !apiCampus.value) return
-
-  const result = await updateConfig({
-    ...configuration.value,
+  configuration.update({
     api: {
       url: apiUrl.value,
       campus: apiCampus.value,
     },
   })
-
-  if (result) {
-    message.value = 'Save successful'
-  }
+  message.value = 'Save successful'
 }
 </script>
 
@@ -46,7 +31,7 @@ const handleSubmit = async () => {
         label="URL"
         type="textarea"
         v-model="apiUrl"
-        class="row-start-1 col-span-full"
+        class="row-start-1 col-span-full w-50"
         required
       />
 

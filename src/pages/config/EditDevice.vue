@@ -1,69 +1,60 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, render } from 'vue'
-import * as Config from '@/models/configuration'
-import * as Device from '@/models/devices'
-import type { TConfiguration, TDevice, TDeviceDimension } from '@/db'
+import { computed, ref } from 'vue'
+import type { TDevice, TDeviceDimension } from '@/db'
 import PageTitle from '@/components/PageTitle.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
 import Alert from '@/components/Alert.vue'
-import colors from 'tailwindcss/colors'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import { useDevicesStore } from '@/stores/devicesStore'
+import { storeToRefs } from 'pinia'
 
-const configuration = ref<TConfiguration>()
-const device = ref()
-const devices = ref()
-onMounted(async () => {
-  devices.value = await Device.all()
-})
+const configuration = useConfigurationStore()
+const { devices } = storeToRefs(useDevicesStore())
 
-const orientation = ref()
+const device = ref(configuration.device)
+const orientation = ref(configuration.orientation)
+const layout = ref(configuration.layout?.component)
 
-const layout = ref()
-
-const colorsPrimary = ref()
-const colorsSecondary = ref()
-const colorsGray = ref()
-
-const showBezel = ref()
-const bezelWidth = ref()
-const bezelBgColor = ref()
-
-const canvasBgColor = ref()
-const canvasColor = ref()
-
-const headerHeight = ref()
-const headerBgColor = ref()
-const headerColor = ref()
-onMounted(async () => {
-  configuration.value = await Config.get()
-  if (configuration.value) {
-    device.value = configuration.value.device
-
-    orientation.value = configuration.value.orientation
-
-    layout.value = configuration.value.layout.component
-
-    colorsPrimary.value = configuration.value.layout.colors.primary
-    colorsSecondary.value = configuration.value.layout.colors.secondary
-    colorsGray.value = configuration.value.layout.colors.gray
-
-    showBezel.value = configuration.value.showBezel
-    bezelWidth.value = configuration.value.layout.bezel.width
-    bezelBgColor.value = configuration.value.layout.bezel.bgColor
-
-    canvasBgColor.value = configuration.value.layout.canvas.bgColor
-    canvasColor.value = configuration.value.layout.canvas.color
-
-    headerHeight.value = configuration.value.layout.header.height
-    headerBgColor.value = configuration.value.layout.header.bgColor
-    headerColor.value = configuration.value.layout.header.color
+const toSeconds = (ms: number = 0) => ms / 1000
+const toMinutes = (ms: number = 0) => ms / (60 * 1000)
+const toHours = (ms: number = 0) => ms / (60 * 60 * 1000)
+const toMilliseconds = (value: number = 0, from = 'seconds') => {
+  switch (from) {
+    case 'hours':
+      return value * 60 * 60 * 1000
+    case 'minutes':
+      return value * 60 * 1000
+    case 'seconds':
+    default:
+      return value * 1000
   }
-})
+}
+
+const layoutRefreshRate = ref(toSeconds(configuration.refreshRates?.layout))
+const menuRefreshRate = ref(toHours(configuration.refreshRates?.menu))
+const pioneerRefreshRate = ref(toHours(configuration.refreshRates?.pioneer))
+
+const colorsPrimary = ref(configuration.primaryColor)
+const colorsSecondary = ref(configuration.secondaryColor)
+const colorsGray = ref(configuration.grayColor)
+
+const headerHeight = ref(configuration.headerHeight)
+const headerBgColor = ref(configuration.headerBg)
+const headerColor = ref(configuration.headerColor)
+
+const canvasBgColor = ref(configuration.canvasBg)
+const canvasColor = ref(configuration.canvasColor)
+
+const showBezel = ref(configuration.showBezel)
+const bezelWidth = ref(configuration.bezelWidth)
+const bezelBgColor = ref(configuration.bezelBg)
 
 const dimensions = computed(() =>
   device.value?.dimensions.find((dim: TDeviceDimension) => dim.orientation === orientation.value),
 )
+
 const layoutDescription = computed(() => {
   switch (layout.value) {
     case 'GridLayout':
@@ -75,19 +66,14 @@ const layoutDescription = computed(() => {
 
 const message = ref()
 const handleSubmit = async (e: SubmitEvent) => {
-  if (
-    !configuration.value ||
-    !device.value ||
-    !dimensions.value?.width ||
-    !dimensions.value?.height ||
-    !dimensions.value.orientation
-  )
-    return
-
-  const result = await Config.update({
-    ...configuration.value,
+  configuration.update({
     orientation: orientation.value,
     showBezel: showBezel.value,
+    refreshRates: {
+      layout: toMilliseconds(+layoutRefreshRate.value, 'seconds'),
+      menu: toMilliseconds(+menuRefreshRate.value, 'hours'),
+      pioneer: toMilliseconds(+pioneerRefreshRate.value, 'hours'),
+    },
     layout: {
       component: layout.value,
       colors: {
@@ -112,9 +98,7 @@ const handleSubmit = async (e: SubmitEvent) => {
     device: device.value,
   })
 
-  if (result) {
-    message.value = 'Save successful. Reload the window to see the changes applied.'
-  }
+  message.value = 'Save successful'
 }
 </script>
 
@@ -137,7 +121,7 @@ const handleSubmit = async (e: SubmitEvent) => {
         v-model="device"
       />
       <div class="row-start-2 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
-        <h3 class="font-semibold">{{ configuration?.device.name }}</h3>
+        <h3 class="font-semibold">{{ device?.name }}</h3>
         <div class="text-sm text-gray-500">
           {{ device?.model }}<br />
           {{ dimensions?.width }}x{{ dimensions?.height }}
@@ -166,6 +150,60 @@ const handleSubmit = async (e: SubmitEvent) => {
         class="row-start-4 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4 text-sm text-gray-500"
       >
         {{ layoutDescription }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
+      <h3 class="font-semibold col-span-full">Refresh Rates</h3>
+      <FormInput
+        type="number"
+        step="1"
+        min="5"
+        max="60"
+        class="col-span-2 w-30"
+        label="Layout"
+        v-model="layoutRefreshRate"
+        post-fix="S"
+      />
+      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
+        <h3 class="font-semibold">Every {{ layoutRefreshRate }} seconds</h3>
+        <div class="text-sm text-gray-500">
+          How often should the device check for venue changes?
+        </div>
+      </div>
+      <FormInput
+        type="number"
+        step="1"
+        min="1"
+        max="12"
+        class="col-span-2 w-30"
+        label="Menu Data"
+        v-model="menuRefreshRate"
+        post-fix="HR"
+      />
+      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
+        <h3 class="font-semibold">Every {{ menuRefreshRate }} hours</h3>
+        <div class="text-sm text-gray-500">
+          How often should the device check for menu changes? This will pick up any new changes to
+          the menu data stored in the database.
+        </div>
+      </div>
+      <FormInput
+        type="number"
+        step="1"
+        min="2"
+        max="12"
+        class="col-span-2 w-30"
+        label="Pioneer Data"
+        v-model="pioneerRefreshRate"
+        post-fix="HR"
+      />
+      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
+        <h3 class="font-semibold">Every {{ pioneerRefreshRate }} hours</h3>
+        <div class="text-sm text-gray-500">
+          How often should the device fetch data from pioneer? This will fetch and store menu data
+          in the database.
+        </div>
       </div>
     </div>
 

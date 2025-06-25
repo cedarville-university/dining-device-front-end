@@ -1,37 +1,29 @@
 <script setup lang="ts">
-import useConfiguration from '@/composables/useConfiguration'
 import { computed } from 'vue'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import { storeToRefs } from 'pinia'
 
-interface Props {
-  showBezels?: boolean
-}
-const { showBezels = false } = defineProps<Props>()
-
-const { layout, deviceDimension: dimensions } = useConfiguration()
-
-const deviceHeight = computed(() => dimensions.value?.height ?? 0)
-const deviceWidth = computed(() => dimensions.value?.width ?? 0)
-
-const primaryColor = computed(() => layout.value?.colors.primary ?? '#003865')
-const secondaryColor = computed(() => layout.value?.colors.secondary ?? '#fcb716')
-const grayColor = computed(() => layout.value?.colors.gray ?? '#efefef')
-
-const headerHeight = computed(() => layout.value?.header.height ?? 0)
-const headerBg = computed(() => layout.value?.header.bgColor ?? '#003865')
-const headerColor = computed(() => layout.value?.header.color ?? 'var(--color-white)')
-
-const viewHeight = computed(() => deviceHeight.value - headerHeight.value)
-const viewWidth = computed(() => deviceWidth.value)
-
-const canvasBg = computed(() => layout.value?.canvas.bgColor ?? 'var(--color-gray-100)')
-const canvasColor = computed(() => layout.value?.canvas.color ?? 'inherit')
-
-const bezelWidth = computed(() => (showBezels ? (layout.value?.bezel.width ?? 0) : 0))
-const bezelBg = computed(() => layout.value?.bezel.bgColor ?? 'var(--color-black)')
-const bezelRadius = computed(() => bezelWidth.value / 2)
+const {
+  orientation,
+  deviceWidth,
+  deviceHeight,
+  primaryColor,
+  secondaryColor,
+  grayColor,
+  headerHeight,
+  headerBg,
+  headerColor,
+  viewHeight,
+  viewWidth,
+  canvasBg,
+  canvasColor,
+  bezelBg,
+  bezelWidth,
+  bezelRadius,
+} = storeToRefs(useConfigurationStore())
 
 const style = computed(() => [
-  `--device-orientation: ${dimensions.value?.orientation}`,
+  `--device-orientation: ${orientation.value}`,
   `--device-width: ${deviceWidth.value}px`,
   `--device-height: ${deviceHeight.value}px`,
   `--primary-color: ${primaryColor.value}`,
@@ -50,7 +42,7 @@ const style = computed(() => [
 ])
 
 const dataAttributes = computed(() => ({
-  'data-device-orientation': dimensions.value?.orientation,
+  'data-device-orientation': orientation.value,
   'data-device-height': deviceHeight.value,
   'data-device-width': deviceWidth.value,
   'data-header-height': headerHeight.value,

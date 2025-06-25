@@ -20,10 +20,8 @@ const { logout } = useAuth()
       Exit Configuration
     </AppButton>
   </PageHeader>
-  <div class="grid grid-cols-4 h-full">
-    <aside
-      class="col-span-1 bg-white h-(--view-height) overflow-auto overscroll-y-contain p-4 shadow"
-    >
+  <div class="grid grid-cols-4 h-(--view-height)">
+    <aside class="col-span-1 bg-white h-full overflow-auto overscroll-y-contain p-4 shadow">
       <nav>
         <ul class="flex flex-col gap-2">
           <li class="flex">
@@ -41,9 +39,7 @@ const { logout } = useAuth()
         </ul>
       </nav>
     </aside>
-    <main
-      class="group/content @container/content relative h-(--view-height) col-span-3 p-4 overflow-auto"
-    >
+    <main class="group/content @container/content relative h-full col-span-3 p-4 overflow-auto">
       <RouterView />
     </main>
   </div>

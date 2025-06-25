@@ -1,5 +1,4 @@
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 const isAuth = ref(false)
 export default function useAuth() {

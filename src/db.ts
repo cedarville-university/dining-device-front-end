@@ -9,11 +9,18 @@ interface TConfiguration {
   layout: TLayout
   device: TDevice
   menus: TConfigMenu[]
+  refreshRates: TRefreshRate
 }
 
 interface TAuth {
   kiosk: string
   configuration: string
+}
+
+interface TRefreshRate {
+  pioneer: number
+  menu: number
+  layout: number
 }
 
 interface TApi {
@@ -200,6 +207,11 @@ db.on('populate', async (trans: Transaction) => {
           endTime: '20:00',
         },
       ],
+      refreshRates: {
+        layout: 5 * 1000, // five seconds
+        menu: 1 * 60 * 60 * 1000, // ever hour
+        pioneer: 6 * 60 * 60 * 1000, // every 6 hours
+      },
     })
   } catch (error) {
     console.error('Error seeding db', error)

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import MenuItemCard from '@/components/MenuItemCard.vue'
-import useConfiguration from '@/composables/useConfiguration'
 import type { Venue } from '@/composables/useMenu'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 
 const { venue } = defineProps<Props>()
-const { orientation } = useConfiguration()
+const { orientation } = storeToRefs(useConfigurationStore())
 
 const menuItems = computed(() => {
   if (venue) {
@@ -46,9 +47,6 @@ const rows = computed(() => {
       'grid-cols-3': cols === 3,
       'grid-cols-4': cols === 4,
       'grid-cols-5': cols === 5,
-      // 'grid-rows-1': rows === 1 && orientation === 'landscape',
-      // 'grid-rows-2': rows === 2 && orientation === 'landscape',
-      // 'grid-rows-3': orientation === 'portrait',
     }"
     class="p-4 h-full overflow-auto grid auto-rows-fr gap-4"
   >

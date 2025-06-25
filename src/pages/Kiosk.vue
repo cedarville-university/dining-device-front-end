@@ -1,64 +1,21 @@
 <script setup lang="ts">
 import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import useConfiguration from '@/composables/useConfiguration'
-import useMenu, { type Venue } from '@/composables/useMenu'
-import type { TMenu } from '@/db'
+import { type Venue } from '@/composables/useMenu'
 import { Temporal } from 'temporal-polyfill'
-import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchAndCache as pioneerFetchAndCache } from '@/functions/pioneerMenu'
+import usePioneerFetchAndCache from '@/composables/useScheduledPioneerMenuSync'
+import useScheduledMenuSync from '@/composables/useScheduledMenuSync'
+import useScheduledTimeSync from '@/composables/useScheduledTimeSync'
+import { storeToRefs } from 'pinia'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import useFullscreen from '@/composables/useFullscreen'
 
 const router = useRouter()
 
-const props = defineProps<{
-  date?: string
-}>()
-
-const { allMenus, layout, auth } = useConfiguration()
-
-const nowTime = ref(Temporal.Now.plainTimeISO())
-const activeMenu = computed(() => {
-  const now = nowTime.value.toString()
-
-  return allMenus.value?.find((menu) => {
-    const startTime = Temporal.PlainTime.from(menu.startTime)
-    const endTime = Temporal.PlainTime.from(menu.endTime)
-    return (
-      Temporal.PlainTime.compare(now, startTime) !== -1 &&
-      Temporal.PlainTime.compare(endTime, now) !== -1
-    )
-  })
-})
-
-const upcomingMenu = computed(() => {
-  const now = nowTime.value.toString()
-
-  return allMenus.value?.find((menu) => {
-    const startTime = Temporal.PlainTime.from(menu.startTime)
-    return Temporal.PlainTime.compare(now, startTime) === -1
-  })
-})
-
-const refreshRate = ref(5)
-let timeout = 0
-const handleReload = () => {
-  nowTime.value = Temporal.Now.plainTimeISO()
-  timeout = setTimeout(handleReload, refreshRate.value * 1000)
-}
-onMounted(() => {
-  const now = Temporal.Now.plainTimeISO()
-  let secondsUntilFive = 0
-  while ((now.second + secondsUntilFive) % refreshRate.value > 0) {
-    secondsUntilFive++
-  }
-
-  timeout = setTimeout(handleReload, secondsUntilFive * 1000)
-})
-onUnmounted(() => {
-  clearTimeout(timeout)
-  exitFullscreen()
-})
+const { activeMenu, upcomingMenu, layout, auth, refreshRates } =
+  storeToRefs(useConfigurationStore())
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -66,48 +23,20 @@ const layoutComponent = computed(() => {
   return defineAsyncComponent(() => import(`../layouts/${layout.value?.component}.vue`))
 })
 
-const date = computed(() =>
-  props.date ? Temporal.PlainDate.from(props.date) : Temporal.Now.plainDateISO(),
-)
+// this starts a scheduled refresh o fthe current time based
+// on the configured layout refresh rate. This will pickup changes
+// from one menu to the next in the UI
+const { time: nowTime } = useScheduledTimeSync(refreshRates.value?.layout)
 
-const { fetchMenu, loading } = useMenu(date)
-const menu = ref<TMenu>()
-onMounted(() => fetchMenu(date.value.toString()))
+// this starts a scheduled sync of the menu data stored
+// in the localdb for the current date. If the menu
+// doesn't exist, pioneer will be fetched
+const { data: menu, loading } = useScheduledMenuSync(refreshRates.value?.menu)
 
-const fetchAndCache = () => {
-  requestIdleCallback(async () => {
-    const data = await fetchMenu(date.value.toString())
-    if (data) menu.value = data
-
-    Promise.all([
-      pioneerFetchAndCache(date.value.add({ days: 1 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 2 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 3 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 4 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 5 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 6 }).toString()),
-      pioneerFetchAndCache(date.value.add({ days: 7 }).toString()),
-    ])
-
-    setTimeout(fetchAndCache, 6 * 60 * 60 * 1000)
-  })
-}
-onMounted(fetchAndCache)
-
-onMounted(() => {
-  window.addEventListener('focus', () => {
-    alert('gained focus')
-  })
-
-  window.addEventListener('offline', () => {
-    // pause background syncs
-  })
-
-  window.addEventListener('online', () => {
-    // resume background syncs
-    // run syncs immeadiately
-  })
-})
+// start pioneer background fetch
+// defaults to fetching the next 5 days
+// every 6 hours
+usePioneerFetchAndCache(5, refreshRates.value?.pioneer)
 
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
@@ -120,10 +49,19 @@ const activeVenue = computed((): Venue | undefined => {
   }
 })
 
-const exitFullscreen = () => {
-  if (document.fullscreenElement) document.exitFullscreen()
-}
+const hasFocus = ref(true)
+const gainedFocus = () => (hasFocus.value = true)
+const lostFocus = () => (hasFocus.value = false)
+onMounted(() => {
+  window.addEventListener('focus', gainedFocus)
+  window.addEventListener('blur', lostFocus)
+})
+onUnmounted(() => {
+  window.removeEventListener('focus', gainedFocus)
+  window.removeEventListener('blur', lostFocus)
+})
 
+const { exitFullscreen } = useFullscreen()
 let kioskPin = ref('')
 let timeoutId = 0
 const pinEnter = (num: '1' | '2' | '3' | '4') => {
@@ -131,6 +69,7 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   kioskPin.value += num
 
   if (kioskPin.value === auth.value?.kiosk) {
+    exitFullscreen()
     router.replace({ name: 'home' })
   } else if (kioskPin.value.length === 4) {
     kioskPin.value = ''
@@ -146,10 +85,9 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   <PageHeader :title="activeVenue?.name ?? ''">
     <Spinner v-if="loading" />
     <div
-      class="text-center rounded p-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
+      class="text-center rounded p-2 w-25 bg-(--header-color)/10 border border-(--header-color)/12"
     >
-      {{ date.toLocaleString() }}
-      {{ nowTime.toLocaleString() }}
+      {{ Temporal.Now.plainDateISO().toLocaleString() }}
     </div>
   </PageHeader>
   <div
@@ -183,5 +121,12 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
     <button @click="pinEnter('4')"></button>
 
     <div class="absolute bottom-1 right-1 text-2xl font-bold">{{ kioskPin }}</div>
+  </div>
+  <div
+    v-if="!hasFocus"
+    class="absolute z-101 inset-0 w-(--device-width) h-(--device-height) bg-white/50 overscroll-contain grid place-content-center text-center"
+  >
+    <h2 class="text-4xl font-bold mb-2">Window does not have focus</h2>
+    <p class="text-xl">The data will not be refreshed while the window does not have focus.</p>
   </div>
 </template>

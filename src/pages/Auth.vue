@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import useAuth from '@/composables/useAuth'
-import useConfiguration from '@/composables/useConfiguration'
+import { useConfigurationStore } from '@/stores/configurationStore'
 import { BackspaceIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
+import { storeToRefs } from 'pinia'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { auth } = useConfiguration()
+const { auth } = storeToRefs(useConfigurationStore())
 
 const pin = ref('')
 

@@ -16,10 +16,9 @@ const router = createRouter({
   routes: [
     { path: appRoot + ':date(\\d{4}-\\d{2}-\\d{2})?', name: 'home', component: Index, props: true },
     {
-      path: appRoot + 'kiosk/:date(\\d{4}-\\d{2}-\\d{2})?',
+      path: appRoot + 'kiosk',
       name: 'kiosk',
       component: Kiosk,
-      props: true,
     },
     {
       path: appRoot + 'config',

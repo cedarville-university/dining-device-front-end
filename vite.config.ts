@@ -31,7 +31,7 @@ export default defineConfig(({ command, mode }) => {
           background_color: '#ffffff',
           display: 'fullscreen',
           scope: appRoot,
-          start_url: appRoot,
+          start_url: appRoot + 'kiosk',
           icons: [
             {
               src: appRoot + 'icons/apple-touch-icon-57x57.png',

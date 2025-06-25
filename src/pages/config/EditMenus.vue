@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { type TConfiguration, type TConfigMenu, type TVenueName } from '@/db'
+import { type TConfigMenu } from '@/db'
 import { PlusCircleIcon, XCircleIcon } from '@heroicons/vue/20/solid'
-import { onMounted, ref, watch } from 'vue'
-import * as Venue from '@/models/venues'
-import * as Config from '@/models/configuration'
+import { ref } from 'vue'
 import AppButton from '@/components/AppButton.vue'
 import Alert from '@/components/Alert.vue'
 import FormInput from '@/components/FormInput.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import PageTitle from '@/components/PageTitle.vue'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import { storeToRefs } from 'pinia'
+import { useVenueNamesStore } from '@/stores/venueNamesStore'
 
-const configuration = ref<TConfiguration | undefined>(await Config.get())
-const menus = ref<TConfigMenu[] | undefined>(
-  configuration.value?.menus.sort((menuA, menuB) => {
-    if (menuA.startTime > menuB.startTime) return 1
-    if (menuA.startTime < menuB.startTime) return -1
-    return 0
-  }),
-)
+const configuration = useConfigurationStore()
+const menus = ref(configuration.menus)
 
-const addMenu = () => {
+const addMenuItem = () => {
   if (!menus.value) menus.value = []
 
   menus.value = [
     {
-      venueId: venueNames.value?.[0].id,
+      venueName: {
+        id: venueNames.value?.[0].id,
+        name: venueNames.value?.[0].name,
+        apiName: venueNames.value?.[0].apiName,
+      },
+      venueId: venueNames.value?.[0].id ?? -1,
       startTime: '00:00',
       endTime: '00:00',
     },
@@ -32,29 +32,21 @@ const addMenu = () => {
   ]
 }
 
-const removeMenu = (menu: TConfigMenu) => {
-  const menuIndex = menus.value?.findIndex((m) => {
+const removeMenuItem = (menu: TConfigMenu) => {
+  const menuItemIndex = menus.value?.findIndex((m) => {
     return (
       m.venueId === menu.venueId && m.startTime === menu.startTime && m.endTime === menu.endTime
     )
   })
-  menus.value = menus.value?.filter((_, index) => index !== menuIndex)
+  menus.value = menus.value?.filter((_, index) => index !== menuItemIndex)
 }
 
-const venueNames = ref<TVenueName[]>(await Venue.all())
+const { venueNames } = storeToRefs(useVenueNamesStore())
 
 const message = ref()
 const handleSubmit = async () => {
-  if (!menus.value || !configuration.value) return
-
-  const config = await Config.get()
-  if (!config) return
-
-  const result = await Config.updateMenus(config, menus.value)
-
-  if (result) {
-    message.value = 'Save successful'
-  }
+  configuration.update({ menus: menus.value })
+  message.value = 'Save successful'
 }
 </script>
 
@@ -66,7 +58,7 @@ const handleSubmit = async () => {
     class="grid grid-cols-2 @[600px]/content:grid-cols-4 gap-4 items-stretch"
   >
     <button
-      @click="addMenu"
+      @click="addMenuItem"
       class="flex flex-col gap-2 items-center justify-center w-full aspect-square bg-white rounded-md shadow hover:bg-gray-50 active:bg-gray-50"
       type="button"
     >
@@ -78,13 +70,13 @@ const handleSubmit = async () => {
       :key="menu.venueId + menu.startTime + menu.endTime"
       class="relative flex flex-col gap-2 bg-white p-4 shadow rounded-md"
     >
-      <button type="button" @click="removeMenu(menu)" class="absolute right-2 top-2">
+      <button type="button" @click="removeMenuItem(menu)" class="absolute right-2 top-2">
         <XCircleIcon class="size-5" />
       </button>
       <FormSelect
         label="Name"
         v-model="menu.venueId"
-        :options="venueNames.map((v) => ({ value: v.id, label: v.name }))"
+        :options="venueNames?.map((v) => ({ value: v.id, label: v.name })) ?? []"
       />
       <FormInput
         label="Start Time"

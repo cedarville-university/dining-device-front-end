@@ -1,9 +1,8 @@
 import { Temporal } from 'temporal-polyfill'
 import { normalizePioneerMenu, transformPioneerMenuToMenu } from './transformers'
 import * as Menus from '@/models/menus'
-import useConfiguration from '@/composables/useConfiguration'
-
-const { apiUrl } = useConfiguration()
+import { storeToRefs } from 'pinia'
+import { useConfigurationStore } from '@/stores/configurationStore'
 
 export interface PioneerMenu {
   date: string
@@ -21,29 +20,51 @@ export interface PioneerMenuItem {
 }
 
 export const get = async (startDate = Temporal.Now.plainDateISO().toString()) => {
-  if (!apiUrl.value) return
+  const { api } = storeToRefs(useConfigurationStore())
 
-  if (apiUrl.value.searchParams.has('startDate')) {
-    apiUrl.value.searchParams.set('startDate', startDate)
+  if (!api.value?.url) return
+
+  const apiUrl = new URL(api.value.url)
+
+  if (apiUrl.searchParams.has('startDate')) {
+    apiUrl.searchParams.set('startDate', startDate)
   } else {
-    apiUrl.value.searchParams.append('startDate', startDate)
+    apiUrl.searchParams.append('startDate', startDate)
   }
 
-  if (apiUrl.value.searchParams.has('_t')) {
-    apiUrl.value.searchParams.set('_t', Temporal.Now.instant().epochMilliseconds.toString())
+  if (apiUrl.searchParams.has('_t')) {
+    apiUrl.searchParams.set('_t', Temporal.Now.instant().epochMilliseconds.toString())
   } else {
-    apiUrl.value.searchParams.append('_t', Temporal.Now.instant().epochMilliseconds.toString())
+    apiUrl.searchParams.append('_t', Temporal.Now.instant().epochMilliseconds.toString())
   }
 
-  const res = await fetch(apiUrl.value.href)
-  const js = await res.text()
+  const controller = new AbortController()
+  const timeout = 5000
+  const timeoutId = setTimeout(() => controller.abort(), timeout)
 
-  return normalizePioneerMenu((new Function(`${js};return menuData;`)() as PioneerMenu[])?.[0])
+  try {
+    const res = await fetch(apiUrl.href, { signal: controller.signal })
+    clearTimeout(timeoutId)
+    const js = await res.text()
+    return normalizePioneerMenu((new Function(`${js};return menuData;`)() as PioneerMenu[])?.[0])
+  } catch (error) {
+    clearTimeout(timeoutId)
+    console.error(error)
+    throw error
+  }
 }
 
 export const fetchAndCache = async (startDate = Temporal.Now.plainDateISO().toString()) => {
-  const pioneerData = await get(startDate)
-  if (pioneerData) {
+  try {
+    const pioneerData = await get(startDate)
+
+    if (!pioneerData) throw Error('Invalid menu data')
+    if (pioneerData.venues?.[0].venue_name === 'No Venues Found')
+      throw Error('No menu found for ' + startDate)
+
+    // I don't want to store invalid menu data
     return await Menus.store(transformPioneerMenuToMenu(pioneerData))
+  } catch (error) {
+    throw error
   }
 }
