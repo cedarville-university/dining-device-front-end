@@ -29,7 +29,7 @@ export default defineConfig(({ command, mode }) => {
           description: 'This application will be used to display menu data for the dining hall.',
           theme_color: '#003865',
           background_color: '#ffffff',
-          display: 'fullscreen',
+          display: 'standalone',
           scope: appRoot,
           start_url: appRoot + 'kiosk',
           icons: [
