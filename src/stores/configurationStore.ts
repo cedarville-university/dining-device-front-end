@@ -1,6 +1,6 @@
-import { db, type TConfigMenu, type TConfiguration } from '@/db'
+import { db, type TConfiguration } from '@/db'
 import { defineStore, storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useVenueNamesStore } from './venueNamesStore'
 import { Temporal } from 'temporal-polyfill'
 import { deepUnref } from '@/functions/deepUnref'
@@ -12,7 +12,7 @@ export const useConfigurationStore = defineStore('configuration', () => {
     configuration.value = await db.configuration.get(1)
   }
 
-  onMounted(loadConfiguration)
+  loadConfiguration()
 
   const update = <T extends { [P in keyof T]: T[P] }>(config: T) =>
     db.configuration.update(1, deepUnref(config)).then(loadConfiguration)
@@ -28,6 +28,10 @@ export const useConfigurationStore = defineStore('configuration', () => {
   const deviceWidth = computed(() => dimensions.value?.width ?? 0)
 
   const refreshRates = computed(() => configuration.value?.refreshRates)
+
+  const layoutRefreshRate = computed(() => refreshRates.value?.layout)
+  const menuRefreshRate = computed(() => refreshRates.value?.menu)
+  const pioneerRefreshRate = computed(() => refreshRates.value?.pioneer)
 
   const layout = computed(() => configuration.value?.layout)
   const primaryColor = computed(() => layout.value?.colors.primary ?? '#003865')
@@ -102,6 +106,9 @@ export const useConfigurationStore = defineStore('configuration', () => {
     deviceHeight,
     deviceWidth,
     refreshRates,
+    layoutRefreshRate,
+    menuRefreshRate,
+    pioneerRefreshRate,
     layout,
     primaryColor,
     secondaryColor,

@@ -14,8 +14,7 @@ import useFullscreen from '@/composables/useFullscreen'
 
 const router = useRouter()
 
-const { activeMenu, upcomingMenu, layout, auth, refreshRates } =
-  storeToRefs(useConfigurationStore())
+const { activeMenu, upcomingMenu, layout, auth } = storeToRefs(useConfigurationStore())
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -26,17 +25,17 @@ const layoutComponent = computed(() => {
 // this starts a scheduled refresh o fthe current time based
 // on the configured layout refresh rate. This will pickup changes
 // from one menu to the next in the UI
-const { time: nowTime } = useScheduledTimeSync(refreshRates.value?.layout)
+const { time: nowTime } = useScheduledTimeSync()
 
 // this starts a scheduled sync of the menu data stored
 // in the localdb for the current date. If the menu
 // doesn't exist, pioneer will be fetched
-const { data: menu, loading } = useScheduledMenuSync(refreshRates.value?.menu)
+const { data: menu, loading } = useScheduledMenuSync()
 
 // start pioneer background fetch
 // defaults to fetching the next 5 days
 // every 6 hours
-usePioneerFetchAndCache(5, refreshRates.value?.pioneer)
+usePioneerFetchAndCache(5)
 
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')

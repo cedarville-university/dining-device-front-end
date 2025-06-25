@@ -1,13 +1,15 @@
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch, watchEffect, type ComputedRef } from 'vue'
 import { fetchAndCache as PioneerFetchAndCache } from '@/functions/pioneerMenu'
 import { Temporal } from 'temporal-polyfill'
+import { useConfigurationStore } from '@/stores/configurationStore'
+import { storeToRefs } from 'pinia'
 
-export default function useScheduledPioneerMenuSync(
-  daysToFetch = 5,
-  refreshRate = 6 * 60 * 60 * 1000,
-) {
+export default function useScheduledPioneerMenuSync(daysToFetch = 5) {
+  const { pioneerRefreshRate } = storeToRefs(useConfigurationStore())
+
   const paused = ref(!navigator.onLine)
   let timeout = -1
+  const isRegistered = ref(false)
 
   const pause = () => {
     if (!paused.value) {
@@ -23,25 +25,36 @@ export default function useScheduledPioneerMenuSync(
   }
 
   const sync = () => {
+    if (!pioneerRefreshRate.value) return
+
     requestIdleCallback(async () => {
       const date = Temporal.Now.plainDateISO()
       for (const day of [...new Array(daysToFetch + 1)].map((_, i) => i)) {
         PioneerFetchAndCache(date.add({ days: day }).toString())
       }
 
-      timeout = setTimeout(sync, refreshRate)
+      timeout = setTimeout(sync, pioneerRefreshRate.value)
     })
   }
-  onMounted(() => {
-    if (!paused.value) {
-      sync()
+
+  const unwatch = watchEffect(() => {
+    if (pioneerRefreshRate.value) {
+      if (isRegistered.value) {
+        unwatch()
+      } else {
+        if (!paused.value) {
+          sync()
+        }
+
+        window.addEventListener('blur', pause)
+        window.addEventListener('focus', resume)
+
+        window.addEventListener('offline', pause)
+        window.addEventListener('online', resume)
+
+        isRegistered.value = true
+      }
     }
-
-    window.addEventListener('blur', pause)
-    window.addEventListener('focus', resume)
-
-    window.addEventListener('offline', pause)
-    window.addEventListener('online', resume)
   })
 
   onUnmounted(() => {
