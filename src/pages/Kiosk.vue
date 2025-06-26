@@ -91,7 +91,7 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   <PageHeader :title="activeVenue?.name ?? ''">
     <Spinner v-if="loading" />
     <div
-      class="text-center rounded p-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
+      class="text-center rounded px-3 py-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
     >
       {{ Temporal.Now.plainDateISO().toLocaleString() }}
       {{ nowTime.toLocaleString() }}
@@ -103,11 +103,7 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   >
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
     <template v-else>
-      <UpNext
-        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
-        :menu="upcomingMenu"
-        :venue="upcomingVenue"
-      />
+      <UpNext v-if="upcomingMenu && upcomingVenue" :menu="upcomingMenu" :venue="upcomingVenue" />
       <div v-else class="grid h-full place-content-center w-full">
         <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
       </div>

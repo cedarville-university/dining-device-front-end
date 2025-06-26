@@ -31,16 +31,18 @@ const endsAt = computed(() =>
 <template>
   <div class="p-8 grid place-content-center w-full h-full">
     <div
-      class="bg-white overflow-clip rounded-lg shadow space-y-4 grid grid-cols-[min-content_1fr] w-full"
+      class="bg-white overflow-clip rounded-2xl shadow-lg space-y-4 grid grid-cols-[min-content_1fr] w-full min-w-md"
     >
       <h3
-        class="col-start-1 bg-(--primary-color) text-white text-[64px] font-extrabold uppercase text-shadow-xs px-8 py-2 [writing-mode:sideways-lr]"
+        class="col-start-1 bg-(--primary-color) rounded-l-2xl border-r-10 border-r-(--secondary-color) text-white text-[64px] text-center font-extrabold uppercase text-shadow-xs px-8 py-2 [writing-mode:sideways-lr]"
       >
         Up Next
       </h3>
-      <div class="p-8 space-y-4 grid place-content-center">
-        <span>{{ startsAt }} - {{ endsAt }}</span>
-        <h4 class="text-2xl font-semibold">{{ menu.venueName?.apiName }}</h4>
+      <div class="p-8 space-y-4">
+        <div>
+          <span>{{ startsAt }} - {{ endsAt }}</span>
+          <h4 class="text-2xl font-semibold">{{ menu.venueName?.apiName }}</h4>
+        </div>
         <ul>
           <li
             v-for="item in venue.items"

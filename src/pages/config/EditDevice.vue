@@ -155,14 +155,14 @@ const handleSubmit = async (e: SubmitEvent) => {
       </div>
     </div>
 
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
+    <div class="w-full grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
       <h3 class="font-semibold col-span-full">Refresh Rates</h3>
       <FormInput
         type="number"
         step="1"
         min="5"
         max="60"
-        class="col-span-3 w-30 @[600px]/content:col-span-2"
+        class="col-span-3 @[600px]/content:col-span-2"
         label="Layout"
         v-model="layoutRefreshRate"
         post-fix="S"
@@ -178,7 +178,7 @@ const handleSubmit = async (e: SubmitEvent) => {
         step="1"
         min="1"
         max="12"
-        class="col-span-3 w-30 @[600px]/content:col-span-2"
+        class="col-span-3 @[600px]/content:col-span-2"
         label="Menu Data"
         v-model="menuRefreshRate"
         post-fix="HR"
@@ -195,7 +195,7 @@ const handleSubmit = async (e: SubmitEvent) => {
         step="1"
         min="2"
         max="12"
-        class="col-span-3 w-30 @[600px]/content:col-span-2"
+        class="col-span-3 @[600px]/content:col-span-2"
         label="Pioneer Data"
         v-model="pioneerRefreshRate"
         post-fix="HR"
@@ -274,7 +274,7 @@ const handleSubmit = async (e: SubmitEvent) => {
       />
     </div>
 
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
+    <div class="w-full grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
       <h3 class="font-semibold col-span-full">Bezel</h3>
       <p class="col-span-full text-sm text-gray-400">
         The bezel is only used when testing the device on a computer.
@@ -286,7 +286,7 @@ const handleSubmit = async (e: SubmitEvent) => {
           { value: false, label: 'No' },
         ]"
         v-model="showBezel"
-        class="row-start-3"
+        class="row-start-3 col-span-2"
       />
       <FormInput
         type="number"

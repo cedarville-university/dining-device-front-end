@@ -74,7 +74,7 @@ const handleSubmit = async () => {
   <form id="EditForm" @submit.prevent="handleSubmit" class="grid gap-4">
     <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
       <FormInput
-        label="Kiosk PIN"
+        label="Kiosk"
         type="number"
         min="1"
         max="4444"
@@ -90,7 +90,7 @@ const handleSubmit = async () => {
         <div v-if="state.kiosk.error" class="text-sm text-red-500">{{ state.kiosk.error }}</div>
       </div>
       <FormInput
-        label="Configuration PIN"
+        label="Configuration"
         type="number"
         min="0"
         max="999999"

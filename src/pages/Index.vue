@@ -2,6 +2,7 @@
 import AppButton from '@/components/AppButton.vue'
 import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import UpNext from '@/components/UpNext.vue'
 import useFullscreen from '@/composables/useFullscreen'
 import useIdleTimeout from '@/composables/useIdleTimeout'
 import useMenu, { type Venue } from '@/composables/useMenuData'
@@ -35,7 +36,9 @@ const layoutComponent = computed(() => {
 })
 
 const dateTime = computed(() =>
-  props.date ? Temporal.PlainDateTime.from(props.date) : Temporal.Now.plainDateTimeISO(),
+  props.date
+    ? Temporal.PlainDateTime.from(props.date + ' ' + Temporal.Now.plainTimeISO().toString())
+    : Temporal.Now.plainDateTimeISO(),
 )
 const date = computed(() => dateTime.value.toPlainDate())
 const time = computed(() => dateTime.value.toPlainTime())
@@ -64,6 +67,14 @@ const activeVenue = computed((): Venue | undefined => {
 
   for (const venue of validVenues.value) {
     if (venue.name === activeMenu.value?.venueName?.apiName) return venue
+  }
+})
+
+const upcomingVenue = computed((): Venue | undefined => {
+  if (!validVenues.value) return
+
+  for (const venue of validVenues.value) {
+    if (venue.name === upcomingMenu.value?.venueName?.apiName) return venue
   }
 })
 
@@ -102,7 +113,7 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
       <span class="sr-only">Previous Day</span>
     </AppButton>
     <div
-      class="text-center rounded p-2 w-25 bg-(--header-color)/10 border border-(--header-color)/12"
+      class="text-center rounded px-3 py-2 w-25 bg-(--header-color)/10 border border-(--header-color)/12"
     >
       {{ date.toLocaleString() }}
     </div>
@@ -115,21 +126,16 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <div v-if="!activeVenue" class="grid h-full place-content-center w-full">
-      <div
-        v-if="validVenues?.length && upcomingMenu"
-        class="bg-white rounded-md shadow p-8 space-y-4"
-      >
-        <h4 class="text-2xl font-semibold">{{ upcomingMenu.venueName?.name }}</h4>
-        <div>
-          The next menu starts at
-          <strong>{{ Temporal.PlainTime.from(upcomingMenu.startTime).toLocaleString() }}</strong>
-        </div>
-      </div>
-      <div v-else class="bg-white rounded-md shadow p-8">
-        No upcoming menus. Check back tomorrow.
-      </div>
-    </div>
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
+    <template v-else>
+      <UpNext
+        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
+        :menu="upcomingMenu"
+        :venue="upcomingVenue"
+      />
+      <div v-else class="grid h-full place-content-center w-full">
+        <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
+      </div>
+    </template>
   </div>
 </template>
