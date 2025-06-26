@@ -76,7 +76,8 @@ export default defineConfig(({ command, mode }) => {
           ],
         },
         devOptions: {
-          enabled: false,
+          enabled: true,
+          type: 'module',
         },
       }),
     ],
