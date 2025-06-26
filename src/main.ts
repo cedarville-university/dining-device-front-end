@@ -12,4 +12,15 @@ app.use(createPinia())
 app.use(router)
 app.mount('#app')
 
-registerSW({ immediate: true })
+registerSW({
+  immediate: true,
+  onRegisteredSW: (swScriptUrl, registration) => {
+    registration &&
+      setInterval(
+        () => {
+          registration.update()
+        },
+        60 * 60 * 1000,
+      )
+  },
+})
