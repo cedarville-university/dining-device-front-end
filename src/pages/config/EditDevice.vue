@@ -66,6 +66,8 @@ const layoutDescription = computed(() => {
 
 const message = ref()
 const handleSubmit = async (e: SubmitEvent) => {
+  if (!layout.value) return
+
   configuration.update({
     orientation: orientation.value,
     showBezel: showBezel.value,

@@ -14,7 +14,7 @@ export const useConfigurationStore = defineStore('configuration', () => {
 
   loadConfiguration()
 
-  const update = <T extends { [P in keyof T]: T[P] }>(config: T) =>
+  const update = (config: { [P in keyof TConfiguration]+?: TConfiguration[P] }) =>
     db.configuration.update(1, deepUnref(config)).then(loadConfiguration)
 
   const orientation = computed(() => configuration.value?.orientation)

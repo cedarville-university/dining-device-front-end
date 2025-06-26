@@ -12,6 +12,8 @@ const apiCampus = ref(configuration.api?.campus)
 
 const message = ref()
 const handleSubmit = async () => {
+  if (!apiUrl.value || !apiCampus.value) return
+
   configuration.update({
     api: {
       url: apiUrl.value,
