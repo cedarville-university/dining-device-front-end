@@ -12,7 +12,8 @@ import { storeToRefs } from 'pinia'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import useFullscreen from '@/composables/useFullscreen'
 import { isBefore, isBetween } from '@/functions/time'
-import UpNext from '@/components/UpNext.vue'
+import UpNextCard from '@/components/UpNextCard.vue'
+import UpNextTomorrowCard from '@/components/UpNextTomorrowCard.vue'
 
 const router = useRouter()
 
@@ -103,10 +104,12 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   >
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
     <template v-else>
-      <UpNext v-if="upcomingMenu && upcomingVenue" :menu="upcomingMenu" :venue="upcomingVenue" />
-      <div v-else class="grid h-full place-content-center w-full">
-        <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
-      </div>
+      <UpNextCard
+        v-if="upcomingMenu && upcomingVenue"
+        :menu="upcomingMenu"
+        :venue="upcomingVenue"
+      />
+      <UpNextTomorrowCard v-else />
     </template>
   </div>
 

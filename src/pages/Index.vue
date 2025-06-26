@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import Spinner from '@/components/icons/Spinner.vue'
+import InfoCard from '@/components/InfoCard.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import UpNext from '@/components/UpNext.vue'
+import UpNextCard from '@/components/UpNextCard.vue'
+import UpNextTomorrowCard from '@/components/UpNextTomorrowCard.vue'
 import useFullscreen from '@/composables/useFullscreen'
 import useIdleTimeout from '@/composables/useIdleTimeout'
-import useMenu, { type Venue } from '@/composables/useMenuData'
+import useMenuData from '@/composables/useMenuData'
+import { type Venue } from '@/composables/useMenuData'
 import { isBefore, isBetween } from '@/functions/time'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import {
@@ -48,7 +51,7 @@ const prev = () =>
 const next = () =>
   router.push({ name: 'home', params: { date: date.value.add({ days: 1 }).toString() } })
 
-const { menu, loading } = useMenu(date)
+const { menu, loading } = useMenuData(date)
 
 const activeMenu = computed(() =>
   menus.value?.find((menu) => isBetween(time.value, menu.startTime, menu.endTime)),
@@ -127,15 +130,16 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
-    <template v-else>
-      <UpNext
-        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
-        :menu="upcomingMenu"
-        :venue="upcomingVenue"
-      />
-      <div v-else class="grid h-full place-content-center w-full">
-        <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
-      </div>
-    </template>
+    <div v-else class="h-full grid place-content-center">
+      <InfoCard v-if="validVenues?.length && upcomingMenu && upcomingVenue" title="Next up">
+        <p>{{ upcomingMenu.venueName.name }}</p>
+      </InfoCard>
+      <InfoCard
+        v-else
+        :title="date.add({ days: 1 }).toLocaleString(undefined, { weekday: 'long' })"
+      >
+        <p>Check back tomorrow</p>
+      </InfoCard>
+    </div>
   </div>
 </template>
