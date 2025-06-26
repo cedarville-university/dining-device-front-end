@@ -16,6 +16,7 @@ const menus = ref(configuration.menus)
 
 const addMenuItem = () => {
   if (!menus.value) menus.value = []
+  if (!venueNames.value?.[0]) return
 
   menus.value = [
     {

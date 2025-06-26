@@ -24,7 +24,7 @@ const startsAt = computed(() => Temporal.PlainTime.from(menu.startTime).toLocale
       >
         Next Up
       </h3>
-      <div class="p-8 space-y-4">
+      <div class="p-8 space-y-4 grid place-content-center">
         <h4 class="text-2xl font-semibold">{{ menu.venueName?.apiName }}</h4>
         <div>
           The next menu starts at <strong>{{ startsAt }}</strong>
