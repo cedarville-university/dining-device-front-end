@@ -11,7 +11,21 @@ interface Props {
 
 const { menu } = defineProps<Props>()
 
-const startsAt = computed(() => Temporal.PlainTime.from(menu.startTime).toLocaleString())
+const startsAt = computed(() =>
+  Temporal.PlainTime.from(menu.startTime).toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }),
+)
+const endsAt = computed(() =>
+  Temporal.PlainTime.from(menu.endTime).toLocaleString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    hourCycle: 'h12',
+  }),
+)
 </script>
 
 <template>
@@ -22,18 +36,16 @@ const startsAt = computed(() => Temporal.PlainTime.from(menu.startTime).toLocale
       <h3
         class="col-start-1 bg-(--primary-color) text-white text-[64px] font-extrabold uppercase text-shadow-xs px-8 py-2 [writing-mode:sideways-lr]"
       >
-        Next Up
+        Up Next
       </h3>
       <div class="p-8 space-y-4 grid place-content-center">
+        <span>{{ startsAt }} - {{ endsAt }}</span>
         <h4 class="text-2xl font-semibold">{{ menu.venueName?.apiName }}</h4>
-        <div>
-          The next menu starts at <strong>{{ startsAt }}</strong>
-        </div>
         <ul>
           <li
             v-for="item in venue.items"
             :key="item.id"
-            class="list-disc list-inside pl-4 accent-(--primary-color)"
+            class="list-disc list-inside pl-4 accent-(--secondary-color)"
           >
             {{ item.name }}
           </li>

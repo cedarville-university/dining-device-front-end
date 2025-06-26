@@ -12,8 +12,7 @@ import { storeToRefs } from 'pinia'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import useFullscreen from '@/composables/useFullscreen'
 import { isBefore, isBetween } from '@/functions/time'
-import NextUp from '@/components/NextUp.vue'
-import type { TConfigMenu, TVenueName } from '@/db'
+import UpNext from '@/components/UpNext.vue'
 
 const router = useRouter()
 
@@ -68,18 +67,6 @@ const upcomingVenue = computed((): Venue | undefined => {
   }
 })
 
-const hasFocus = ref(true)
-const gainedFocus = () => (hasFocus.value = true)
-const lostFocus = () => (hasFocus.value = false)
-// onMounted(() => {
-//   window.addEventListener('focus', gainedFocus)
-//   window.addEventListener('blur', lostFocus)
-// })
-// onUnmounted(() => {
-//   window.removeEventListener('focus', gainedFocus)
-//   window.removeEventListener('blur', lostFocus)
-// })
-
 const { exitFullscreen } = useFullscreen()
 let kioskPin = ref('')
 let timeoutId = 0
@@ -114,15 +101,17 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <NextUp
-      v-if="!activeVenue && validVenues?.length && upcomingMenu && upcomingVenue"
-      :menu="upcomingMenu"
-      :venue="upcomingVenue"
-    />
-    <div v-else-if="!activeVenue" class="grid h-full place-content-center w-full">
-      <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
-    </div>
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
+    <template v-else>
+      <UpNext
+        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
+        :menu="upcomingMenu"
+        :venue="upcomingVenue"
+      />
+      <div v-else class="grid h-full place-content-center w-full">
+        <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
+      </div>
+    </template>
   </div>
 
   <div
@@ -134,12 +123,5 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
     <button @click="pinEnter('4')"></button>
 
     <div class="absolute bottom-1 right-1 text-2xl font-bold">{{ kioskPin }}</div>
-  </div>
-  <div
-    v-if="!hasFocus"
-    class="absolute z-101 inset-0 w-(--device-width) h-(--device-height) bg-white/50 overscroll-contain grid place-content-center text-center"
-  >
-    <h2 class="text-4xl font-bold mb-2">Window does not have focus</h2>
-    <p class="text-xl">The data will not be refreshed while the window does not have focus.</p>
   </div>
 </template>

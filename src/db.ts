@@ -218,24 +218,24 @@ db.on('populate', async (trans: Transaction) => {
           },
         ],
       },
-      menus,
-      // menus: [
-      //   {
-      //     venueId: breakfastId,
-      //     startTime: '07:00',
-      //     endTime: '10:00',
-      //   },
-      //   {
-      //     venueId: lunchId,
-      //     startTime: '10:30',
-      //     endTime: '14:00',
-      //   },
-      //   {
-      //     venueId: dinnerId,
-      //     startTime: '16:30',
-      //     endTime: '20:00',
-      //   },
-      // ],
+      // menus,
+      menus: [
+        {
+          venueId: breakfastId,
+          startTime: '07:00',
+          endTime: '10:00',
+        },
+        {
+          venueId: lunchId,
+          startTime: '10:30',
+          endTime: '14:00',
+        },
+        {
+          venueId: dinnerId,
+          startTime: '16:30',
+          endTime: '20:00',
+        },
+      ],
       refreshRates: {
         layout: 5 * 1000, // five seconds
         menu: 1 * 60 * 60 * 1000, // ever hour
