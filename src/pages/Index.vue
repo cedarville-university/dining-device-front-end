@@ -131,15 +131,13 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
   >
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
     <div v-else class="h-full grid place-content-center">
-      <InfoCard v-if="validVenues?.length && upcomingMenu && upcomingVenue" title="Next up">
-        <p>{{ upcomingMenu.venueName.name }}</p>
-      </InfoCard>
-      <InfoCard
-        v-else
-        :title="date.add({ days: 1 }).toLocaleString(undefined, { weekday: 'long' })"
+      <p
+        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
+        class="rounded shadow bg-white p-8 text-xl"
       >
-        <p>Check back tomorrow</p>
-      </InfoCard>
+        Next up: <strong>{{ upcomingMenu.venueName.name }}</strong>
+      </p>
+      <p v-else class="rounded shadow bg-white p-8 text-xl">Check back tomorrow</p>
     </div>
   </div>
 </template>
