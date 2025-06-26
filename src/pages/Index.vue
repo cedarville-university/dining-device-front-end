@@ -34,10 +34,11 @@ const layoutComponent = computed(() => {
   return defineAsyncComponent(() => import(`../layouts/${layout.value?.component}.vue`))
 })
 
-const date = computed(() =>
+const dateTime = computed(() =>
   props.date ? Temporal.PlainDateTime.from(props.date) : Temporal.Now.plainDateTimeISO(),
 )
-const time = computed(() => date.value.toPlainTime())
+const date = computed(() => dateTime.value.toPlainDate())
+const time = computed(() => dateTime.value.toPlainTime())
 
 const prev = () =>
   router.push({ name: 'home', params: { date: date.value.subtract({ days: 1 }).toString() } })

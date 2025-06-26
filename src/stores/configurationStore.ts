@@ -1,4 +1,4 @@
-import { db, type TConfiguration } from '@/db'
+import { db, type TConfigMenu, type TConfiguration, type TVenueName } from '@/db'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useVenueNamesStore } from './venueNamesStore'
@@ -61,7 +61,7 @@ export const useConfigurationStore = defineStore('configuration', () => {
         return {
           ...menu,
           venueName: { ...venueName },
-        }
+        } as TConfigMenu & { venueName: TVenueName }
       })
       .sort((menuA, menuB) => {
         if (menuA.startTime > menuB.startTime) return 1

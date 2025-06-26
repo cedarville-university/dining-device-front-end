@@ -12,6 +12,8 @@ import { storeToRefs } from 'pinia'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import useFullscreen from '@/composables/useFullscreen'
 import { isBefore, isBetween } from '@/functions/time'
+import NextUp from '@/components/NextUp.vue'
+import type { TConfigMenu, TVenueName } from '@/db'
 
 const router = useRouter()
 
@@ -49,6 +51,7 @@ const upcomingMenu = computed(() =>
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
 })
+
 const activeVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
@@ -57,17 +60,25 @@ const activeVenue = computed((): Venue | undefined => {
   }
 })
 
+const upcomingVenue = computed((): Venue | undefined => {
+  if (!validVenues.value) return
+
+  for (const venue of validVenues.value) {
+    if (venue.name === upcomingMenu.value?.venueName?.apiName) return venue
+  }
+})
+
 const hasFocus = ref(true)
 const gainedFocus = () => (hasFocus.value = true)
 const lostFocus = () => (hasFocus.value = false)
-onMounted(() => {
-  window.addEventListener('focus', gainedFocus)
-  window.addEventListener('blur', lostFocus)
-})
-onUnmounted(() => {
-  window.removeEventListener('focus', gainedFocus)
-  window.removeEventListener('blur', lostFocus)
-})
+// onMounted(() => {
+//   window.addEventListener('focus', gainedFocus)
+//   window.addEventListener('blur', lostFocus)
+// })
+// onUnmounted(() => {
+//   window.removeEventListener('focus', gainedFocus)
+//   window.removeEventListener('blur', lostFocus)
+// })
 
 const { exitFullscreen } = useFullscreen()
 let kioskPin = ref('')
@@ -92,7 +103,6 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
 <template>
   <PageHeader :title="activeVenue?.name ?? ''">
     <Spinner v-if="loading" />
-    {{ upcomingMenu?.venueName.name }} at {{ upcomingMenu?.startTime }}
     <div
       class="text-center rounded p-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
     >
@@ -104,20 +114,13 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <div v-if="!activeVenue" class="grid h-full place-content-center w-full">
-      <div
-        v-if="validVenues?.length && upcomingMenu"
-        class="bg-white rounded-md shadow p-8 space-y-4"
-      >
-        <h4 class="text-2xl font-semibold">{{ upcomingMenu.venueName?.apiName }}</h4>
-        <div>
-          The next menu starts at
-          <strong>{{ Temporal.PlainTime.from(upcomingMenu.startTime).toLocaleString() }}</strong>
-        </div>
-      </div>
-      <div v-else class="bg-white rounded-md shadow p-8">
-        No upcoming menus. Check back tomorrow.
-      </div>
+    <NextUp
+      v-if="!activeVenue && validVenues?.length && upcomingMenu && upcomingVenue"
+      :menu="upcomingMenu"
+      :venue="upcomingVenue"
+    />
+    <div v-else-if="!activeVenue" class="grid h-full place-content-center w-full">
+      <div class="bg-white rounded-md shadow p-8">No upcoming menus. Check back tomorrow.</div>
     </div>
     <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
   </div>
