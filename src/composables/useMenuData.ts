@@ -23,8 +23,10 @@ export interface MenuItem {
   allergens: string[]
 }
 
-export default function useMenu(
-  startDate: MaybeRefOrGetter<Temporal.PlainDate> = Temporal.Now.plainDateISO(),
+export default function useMenuData(
+  startDate: MaybeRefOrGetter<
+    Temporal.PlainDate | Temporal.PlainDateTime
+  > = Temporal.Now.plainDateISO(),
 ) {
   const data = ref<Menu>()
   const loading = ref(false)
@@ -47,7 +49,12 @@ export default function useMenu(
   }
 
   watchEffect(async () => {
-    data.value = await fetchMenu(toValue(startDate).toString())
+    let date = toValue(startDate)
+    if (date instanceof Temporal.PlainDateTime) {
+      date = date.toPlainDate()
+    }
+
+    data.value = await fetchMenu(date.toString())
   })
 
   return {

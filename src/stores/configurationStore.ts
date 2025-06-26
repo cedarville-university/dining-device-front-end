@@ -70,28 +70,6 @@ export const useConfigurationStore = defineStore('configuration', () => {
       })
   })
 
-  const activeMenu = computed(() => {
-    const now = Temporal.Now.plainTimeISO().toString()
-
-    return menus.value?.find((menu) => {
-      const startTime = Temporal.PlainTime.from(menu.startTime)
-      const endTime = Temporal.PlainTime.from(menu.endTime)
-      return (
-        Temporal.PlainTime.compare(now, startTime) !== -1 &&
-        Temporal.PlainTime.compare(endTime, now) !== -1
-      )
-    })
-  })
-
-  const upcomingMenu = computed(() => {
-    const now = Temporal.Now.plainTimeISO().toString()
-
-    return menus.value?.find((menu) => {
-      const startTime = Temporal.PlainTime.from(menu.startTime)
-      return Temporal.PlainTime.compare(now, startTime) === -1
-    })
-  })
-
   const auth = computed(() => configuration.value?.auth)
 
   const api = computed(() => configuration.value?.api)
@@ -125,8 +103,6 @@ export const useConfigurationStore = defineStore('configuration', () => {
     bezelBg,
     bezelRadius,
     menus,
-    activeMenu,
-    upcomingMenu,
     auth,
     api,
   }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MenuItem } from '@/composables/useMenu'
+import type { MenuItem } from '@/composables/useMenuData'
 import Allergen from '@/components/Allergen.vue'
 
 interface Props {

@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie'
+import { Temporal } from 'temporal-polyfill'
 
 interface TConfiguration {
   id: number
@@ -140,6 +141,33 @@ db.on('populate', async (trans: Transaction) => {
       .table('venues')
       .add({ apiName: 'Vegetarian Bar', name: 'Vegetarian Bar' })
 
+    const menus: TConfigMenu[] = []
+    let now = Temporal.Now.plainTimeISO()
+    const venues = [breakfastId, lunchId, dinnerId, soupId, veggieId]
+    let index = 0
+    while (menus.length < 60) {
+      const menuItem = {
+        venueId: venues[index],
+        startTime: '',
+        endTime: '',
+      }
+
+      index = (index + 1) % venues.length
+
+      menuItem.startTime = now.toLocaleString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+      now = now.add({ minutes: 1 })
+      menuItem.endTime = now.toLocaleString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+      menus.push(menuItem)
+    }
+
     await trans.table('configuration').add({
       id: 1,
       auth: {
@@ -190,23 +218,24 @@ db.on('populate', async (trans: Transaction) => {
           },
         ],
       },
-      menus: [
-        {
-          venueId: breakfastId,
-          startTime: '07:00',
-          endTime: '10:00',
-        },
-        {
-          venueId: lunchId,
-          startTime: '10:30',
-          endTime: '14:00',
-        },
-        {
-          venueId: dinnerId,
-          startTime: '16:30',
-          endTime: '20:00',
-        },
-      ],
+      menus,
+      // menus: [
+      //   {
+      //     venueId: breakfastId,
+      //     startTime: '07:00',
+      //     endTime: '10:00',
+      //   },
+      //   {
+      //     venueId: lunchId,
+      //     startTime: '10:30',
+      //     endTime: '14:00',
+      //   },
+      //   {
+      //     venueId: dinnerId,
+      //     startTime: '16:30',
+      //     endTime: '20:00',
+      //   },
+      // ],
       refreshRates: {
         layout: 5 * 1000, // five seconds
         menu: 1 * 60 * 60 * 1000, // ever hour

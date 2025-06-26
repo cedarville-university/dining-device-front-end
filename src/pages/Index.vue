@@ -4,7 +4,8 @@ import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import useFullscreen from '@/composables/useFullscreen'
 import useIdleTimeout from '@/composables/useIdleTimeout'
-import useMenu, { type Venue } from '@/composables/useMenu'
+import useMenu, { type Venue } from '@/composables/useMenuData'
+import { isBefore, isBetween } from '@/functions/time'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import {
   ArrowRightEndOnRectangleIcon,
@@ -25,7 +26,7 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { activeMenu, upcomingMenu, layout } = storeToRefs(useConfigurationStore())
+const { menus, layout } = storeToRefs(useConfigurationStore())
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -34,14 +35,24 @@ const layoutComponent = computed(() => {
 })
 
 const date = computed(() =>
-  props.date ? Temporal.PlainDate.from(props.date) : Temporal.Now.plainDateISO(),
+  props.date ? Temporal.PlainDateTime.from(props.date) : Temporal.Now.plainDateTimeISO(),
 )
+const time = computed(() => date.value.toPlainTime())
+
 const prev = () =>
   router.push({ name: 'home', params: { date: date.value.subtract({ days: 1 }).toString() } })
 const next = () =>
   router.push({ name: 'home', params: { date: date.value.add({ days: 1 }).toString() } })
 
 const { menu, loading } = useMenu(date)
+
+const activeMenu = computed(() =>
+  menus.value?.find((menu) => isBetween(time.value, menu.startTime, menu.endTime)),
+)
+
+const upcomingMenu = computed(() =>
+  menus.value?.find((menu) => isBefore(time.value, menu.startTime)),
+)
 
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')

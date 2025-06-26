@@ -1,7 +1,7 @@
 import type { TMenu } from '@/db'
 import { Temporal } from 'temporal-polyfill'
 import { onUnmounted, ref, watch, watchEffect } from 'vue'
-import type { Menu } from './useMenu'
+import type { Menu } from './useMenuData'
 import { fetchAndCache as pioneerFetchAndCache } from '@/functions/pioneerMenu'
 import { get as menuGet } from '@/models/menus'
 import { storeToRefs } from 'pinia'

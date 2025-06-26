@@ -1,4 +1,4 @@
-import type { Menu } from '@/composables/useMenu'
+import type { Menu } from '@/composables/useMenuData'
 import { db } from '@/db'
 import { Temporal } from 'temporal-polyfill'
 import * as Venue from './venues'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MenuItemCard from '@/components/MenuItemCard.vue'
-import type { Venue } from '@/composables/useMenu'
+import type { Venue } from '@/composables/useMenuData'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Spinner from '@/components/icons/Spinner.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import { type Venue } from '@/composables/useMenu'
+import { type Venue } from '@/composables/useMenuData'
 import { Temporal } from 'temporal-polyfill'
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -11,10 +11,11 @@ import useScheduledTimeSync from '@/composables/useScheduledTimeSync'
 import { storeToRefs } from 'pinia'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import useFullscreen from '@/composables/useFullscreen'
+import { isBefore, isBetween } from '@/functions/time'
 
 const router = useRouter()
 
-const { activeMenu, upcomingMenu, layout, auth } = storeToRefs(useConfigurationStore())
+const { menus, layout, auth } = storeToRefs(useConfigurationStore())
 
 const layoutComponent = computed(() => {
   if (!layout.value) return undefined
@@ -36,6 +37,14 @@ const { data: menu, loading } = useScheduledMenuSync()
 // defaults to fetching the next 5 days
 // every 6 hours
 usePioneerFetchAndCache(5)
+
+const activeMenu = computed(() =>
+  menus.value?.find((menu) => isBetween(nowTime.value, menu.startTime, menu.endTime)),
+)
+
+const upcomingMenu = computed(() =>
+  menus.value?.find((menu) => isBefore(nowTime.value, menu.startTime)),
+)
 
 const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
@@ -83,6 +92,7 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
 <template>
   <PageHeader :title="activeVenue?.name ?? ''">
     <Spinner v-if="loading" />
+    {{ upcomingMenu?.venueName.name }} at {{ upcomingMenu?.startTime }}
     <div
       class="text-center rounded p-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
     >

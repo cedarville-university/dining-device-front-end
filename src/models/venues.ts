@@ -1,4 +1,4 @@
-import type { Venue } from '@/composables/useMenu'
+import type { Venue } from '@/composables/useMenuData'
 import { db } from '@/db'
 
 export const all = () => db.venues.toArray()
