@@ -24,14 +24,14 @@ const upcomingVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
   for (const venue of validVenues.value) {
-    if (venue.name === upcomingMenu.value?.venueName?.apiName) return venue
+    if (venue.name === upcomingMenu.value?.venue?.apiName) return venue
   }
 })
 
 const startsAt = computed(() => {
   if (!upcomingMenu.value) return
 
-  return Temporal.PlainTime.from(upcomingMenu.value.startTime).toLocaleString('en-US', {
+  return upcomingMenu.value.startTimeObject.toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
@@ -40,7 +40,7 @@ const startsAt = computed(() => {
 const endsAt = computed(() => {
   if (!upcomingMenu.value) return
 
-  return Temporal.PlainTime.from(upcomingMenu.value.endTime).toLocaleString('en-US', {
+  return upcomingMenu.value.endTimeObject.toLocaleString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
@@ -56,7 +56,7 @@ const endsAt = computed(() => {
         <p>Here's a peek at what's on the menu tomorrow!</p>
         <div>
           <span class="text-gray-600 text-sm">{{ startsAt }} - {{ endsAt }}</span>
-          <h4 class="text-2xl font-semibold">{{ upcomingMenu?.venueName?.apiName }}</h4>
+          <h4 class="text-2xl font-semibold">{{ upcomingMenu?.venue?.apiName }}</h4>
         </div>
         <ul>
           <li

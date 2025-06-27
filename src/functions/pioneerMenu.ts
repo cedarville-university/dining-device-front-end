@@ -64,9 +64,9 @@ export const fetchAndCache = async (startDate = Temporal.Now.plainDateISO().toSt
   try {
     const pioneerData = await get(startDate)
 
-    if (!pioneerData) throw Error('Invalid menu data')
-    if (pioneerData.venues?.[0].venue_name === 'No Venues Found')
-      throw Error('No menu found for ' + startDate)
+    if (!pioneerData) {
+      throw Error('Invalid menu data')
+    }
 
     // I don't want to store invalid menu data
     return await Menus.store(transformPioneerMenuToMenu(pioneerData))

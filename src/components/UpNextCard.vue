@@ -6,7 +6,7 @@ import { computed } from 'vue'
 import InfoCard from './InfoCard.vue'
 
 interface Props {
-  menu: TConfigMenu & { venueName: TVenueName }
+  menu: TConfigMenu
   venue: Venue
 }
 
@@ -34,7 +34,7 @@ const endsAt = computed(() =>
     <InfoCard title="Up Next">
       <div>
         <span class="text-gray-600 text-sm">{{ startsAt }} - {{ endsAt }}</span>
-        <h4 class="text-2xl font-semibold">{{ menu.venueName?.apiName }}</h4>
+        <h4 class="text-2xl font-semibold">{{ menu.venue?.apiName }}</h4>
       </div>
       <ul>
         <li

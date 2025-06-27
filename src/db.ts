@@ -30,7 +30,6 @@ interface TApi {
 }
 
 interface TLayout {
-  component: 'GridLayout'
   colors: TLayoutColors
   canvas: TLayoutConfig
   bezel: TLayoutConfig
@@ -64,9 +63,17 @@ interface TDeviceDimension {
 }
 
 interface TConfigMenu {
-  venueId: number
+  venue: TVenueName
+  layout: TLayoutComponent
   startTime: string
   endTime: string
+}
+
+interface TLayoutComponent {
+  id: number
+  name: string
+  component: string
+  description: string
 }
 
 interface TMenu {
@@ -96,6 +103,7 @@ interface TVenueName {
 const db = new Dexie('dining-menu') as Dexie & {
   configuration: EntityTable<TConfiguration, 'id'>
   menus: EntityTable<TMenu, 'id'>
+  layouts: EntityTable<TLayoutComponent, 'id'>
   venues: EntityTable<TVenueName, 'id'>
   devices: EntityTable<TDevice, 'id'>
 }
@@ -103,6 +111,7 @@ const db = new Dexie('dining-menu') as Dexie & {
 db.version(1).stores({
   configuration: '++id',
   menus: '++id, date',
+  layouts: '++id, name',
   venues: '++id, apiName, name',
   devices: '++id',
 })
@@ -127,27 +136,38 @@ db.on('populate', async (trans: Transaction) => {
       ],
     })
 
-    const breakfastId = await trans.table('venues').add({ apiName: 'Breakfast', name: 'Breakfast' })
-    const lunchId = await trans
-      .table('venues')
-      .add({ apiName: 'Lunch Homecooking', name: 'Lunch Homecooking' })
-    const dinnerId = await trans
-      .table('venues')
-      .add({ apiName: 'Dinner Homecooking', name: 'Dinner Homecooking' })
-    const soupId = await trans
-      .table('venues')
-      .add({ apiName: 'Soup of the Day', name: 'Soup of the Day' })
-    const veggieId = await trans
-      .table('venues')
-      .add({ apiName: 'Vegetarian Bar', name: 'Vegetarian Bar' })
+    const gridLayout = {
+      id: 1,
+      name: 'Grid Layout',
+      component: 'GridLayout',
+      description:
+        'The grid layout renders the menu as a grid of cards. The number of columns and rows will be determined dynamically based on the number of menu items.',
+    }
+    await trans.table('layouts').add(gridLayout)
+
+    const breakfast = { id: 1, apiName: 'Breakfast', name: 'Breakfast' }
+    await trans.table('venues').add(breakfast)
+
+    const lunch = { id: 2, apiName: 'Lunch Homecooking', name: 'Lunch Homecooking' }
+    await trans.table('venues').add(lunch)
+
+    const dinner = { id: 3, apiName: 'Dinner Homecooking', name: 'Dinner Homecooking' }
+    await trans.table('venues').add(dinner)
+
+    const soup = { id: 4, apiName: 'Soup of the Day', name: 'Soup of the Day' }
+    await trans.table('venues').add(soup)
+
+    const veggie = { id: 5, apiName: 'Vegetarian Bar', name: 'Vegetarian Bar' }
+    await trans.table('venues').add(veggie)
 
     const menus: TConfigMenu[] = []
     let now = Temporal.Now.plainTimeISO()
-    const venues = [breakfastId, lunchId, dinnerId, soupId, veggieId]
+    const venues = [breakfast, lunch, dinner, soup, veggie]
     let index = 0
     while (menus.length < 60) {
       const menuItem = {
-        venueId: venues[index],
+        venue: venues[index],
+        layout: gridLayout,
         startTime: '',
         endTime: '',
       }
@@ -181,7 +201,6 @@ db.on('populate', async (trans: Transaction) => {
       orientation: 'landscape',
       showBezel: false,
       layout: {
-        component: 'GridLayout',
         colors: {
           primary: '#003865',
           accent: '#fcb716',
@@ -218,24 +237,27 @@ db.on('populate', async (trans: Transaction) => {
           },
         ],
       },
-      menus,
-      // menus: [
-      //   {
-      //     venueId: breakfastId,
-      //     startTime: '07:00',
-      //     endTime: '10:00',
-      //   },
-      //   {
-      //     venueId: lunchId,
-      //     startTime: '10:30',
-      //     endTime: '14:00',
-      //   },
-      //   {
-      //     venueId: dinnerId,
-      //     startTime: '16:30',
-      //     endTime: '20:00',
-      //   },
-      // ],
+      // menus,
+      menus: [
+        {
+          venue: breakfast,
+          layout: gridLayout,
+          startTime: '07:00',
+          endTime: '10:00',
+        },
+        {
+          venue: lunch,
+          layout: gridLayout,
+          startTime: '10:30',
+          endTime: '14:00',
+        },
+        {
+          venue: dinner,
+          layout: gridLayout,
+          startTime: '16:30',
+          endTime: '20:00',
+        },
+      ],
       refreshRates: {
         layout: 5 * 1000, // five seconds
         menu: 1 * 60 * 60 * 1000, // ever hour
@@ -252,6 +274,7 @@ export type {
   TVenueName,
   TVenue,
   TMenuItem,
+  TLayoutComponent,
   TConfiguration,
   TDevice,
   TDeviceDimension,

@@ -3,11 +3,11 @@ defineProps<{ title?: string }>()
 </script>
 
 <template>
-  <div class="bg-white rounded p-4 space-y-3 shadow">
+  <div class="p-4 mx-auto space-y-4 bg-white rounded-lg shadow max-w-xl">
     <slot name="header">
       <h2 class="font-semibold text-xl">{{ title }}</h2>
     </slot>
-    <div class="bg-gray-100">
+    <div>
       <slot />
     </div>
   </div>

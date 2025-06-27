@@ -1,111 +1,119 @@
 <script setup lang="ts">
 import AppButton from '@/components/AppButton.vue'
+import Card from '@/components/Card.vue'
+import FormSelect from '@/components/FormSelect.vue'
 import Spinner from '@/components/icons/Spinner.vue'
-import InfoCard from '@/components/InfoCard.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import UpNextCard from '@/components/UpNextCard.vue'
-import UpNextTomorrowCard from '@/components/UpNextTomorrowCard.vue'
-import useFullscreen from '@/composables/useFullscreen'
 import useIdleTimeout from '@/composables/useIdleTimeout'
 import useMenuData from '@/composables/useMenuData'
-import { type Venue } from '@/composables/useMenuData'
-import { isBefore, isBetween } from '@/functions/time'
 import { useConfigurationStore } from '@/stores/configurationStore'
+import { useLayoutsStore } from '@/stores/layoutsStore'
 import {
   ArrowRightEndOnRectangleIcon,
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon,
 } from '@heroicons/vue/20/solid'
 import { storeToRefs } from 'pinia'
 import { Temporal } from 'temporal-polyfill'
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   date?: string
 }>()
 
-const router = useRouter()
+const date = computed(() =>
+  props.date ? Temporal.PlainDate.from(props.date) : Temporal.Now.plainDateISO(),
+)
 
+const { venues, loading, error } = useMenuData(date)
 const { menus, layout } = storeToRefs(useConfigurationStore())
 
-const layoutComponent = computed(() => {
-  if (!layout.value) return undefined
-
-  return defineAsyncComponent(() => import(`../layouts/${layout.value?.component}.vue`))
-})
-
-const dateTime = computed(() =>
-  props.date
-    ? Temporal.PlainDateTime.from(props.date + ' ' + Temporal.Now.plainTimeISO().toString())
-    : Temporal.Now.plainDateTimeISO(),
-)
-const date = computed(() => dateTime.value.toPlainDate())
-const time = computed(() => dateTime.value.toPlainTime())
-
+const router = useRouter()
 const prev = () =>
   router.push({ name: 'home', params: { date: date.value.subtract({ days: 1 }).toString() } })
 const next = () =>
   router.push({ name: 'home', params: { date: date.value.add({ days: 1 }).toString() } })
 
-const { menu, loading } = useMenuData(date)
+// handles venue select
+const venueOptions = computed(() => {
+  return (
+    venues.value?.map((venue) => {
+      return {
+        value: venue.name,
+        label: venue.name,
+      }
+    }) ?? []
+  )
+})
+const selectedVenueName = ref()
+watch(venues, () => (selectedVenueName.value = venues.value?.[0].name))
 
-const activeMenu = computed(() =>
-  menus.value?.find((menu) => isBetween(time.value, menu.startTime, menu.endTime)),
+const scheduledMenu = computed(() =>
+  menus.value?.find((menu) => menu.venue?.name === selectedVenueName.value),
 )
 
-const upcomingMenu = computed(() =>
-  menus.value?.find((menu) => isBefore(time.value, menu.startTime)),
+const selectedVenue = computed(() => {
+  if (selectedVenueName.value) {
+    return venues.value?.find((venue) => venue.name === selectedVenueName.value)
+  }
+
+  selectedVenueName.value = venues.value?.[0]?.name
+  return venues.value?.[0]
+})
+
+// handles layout changes
+const { layouts } = storeToRefs(useLayoutsStore())
+const layoutOptions = computed(
+  () => layouts.value?.map((layout) => ({ value: layout.component, label: layout.name })) ?? [],
 )
-
-const validVenues = computed(() => {
-  return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
+const selectedLayoutComponent = ref()
+watch(
+  [layouts, selectedVenue],
+  () =>
+    (selectedLayoutComponent.value =
+      scheduledMenu.value?.layout.component || layouts.value?.[0].component),
+)
+const layoutComponent = computed(() => {
+  if (!selectedLayoutComponent.value) return
+  return defineAsyncComponent(() => import(`../layouts/${selectedLayoutComponent.value}.vue`))
 })
-
-const activeVenue = computed((): Venue | undefined => {
-  if (!validVenues.value) return
-
-  for (const venue of validVenues.value) {
-    if (venue.name === activeMenu.value?.venueName?.apiName) return venue
-  }
-})
-
-const upcomingVenue = computed((): Venue | undefined => {
-  if (!validVenues.value) return
-
-  for (const venue of validVenues.value) {
-    if (venue.name === upcomingMenu.value?.venueName?.apiName) return venue
-  }
-})
-
-const { isFullscreen, enterFullscreen, exitFullscreen } = useFullscreen()
 
 const enterKiosk = () => {
-  enterFullscreen()
   router.push({ name: 'kiosk' })
 }
 
-// enter the kiosk after an idle period of 1 minute
-useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
+// enter the kiosk after an idle period of 10 minutes
+useIdleTimeout(() => router.replace({ name: 'kiosk' }), 10 * 60 * 60 * 1000)
 </script>
 
 <template>
-  <PageHeader :title="activeVenue?.name ?? ''">
+  <PageHeader>
+    <template #title>
+      <div class="flex items-center gap-2 text-xs">
+        <FormSelect
+          label="Venues"
+          :help="
+            scheduledMenu
+              ? `${scheduledMenu?.startTimeObject.toLocaleString(undefined, {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true,
+                })} - ${scheduledMenu?.endTimeObject.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}`
+              : undefined
+          "
+          :options="venueOptions"
+          v-model="selectedVenueName"
+          class="min-w-50"
+        />
+        <FormSelect label="Layouts" :options="layoutOptions" v-model="selectedLayoutComponent" />
+      </div>
+    </template>
     <Spinner v-if="loading" />
     <AppButton @click="enterKiosk" variant="secondary" class="flex gap-1 items-center">
       <ArrowRightEndOnRectangleIcon class="size-5" />
       Enter Kiosk
-    </AppButton>
-    <AppButton v-if="isFullscreen" @click="exitFullscreen">
-      <ArrowsPointingInIcon class="size-6" />
-      <span class="sr-only">Exit Fullscreen</span>
-    </AppButton>
-    <AppButton v-else @click="enterFullscreen" variant="secondary">
-      <ArrowsPointingOutIcon class="size-6" />
-      <span class="sr-only">Enter Fullscreen</span>
     </AppButton>
     <AppButton :to="{ name: 'config' }" variant="secondary">
       <Cog6ToothIcon class="size-6" />
@@ -129,15 +137,11 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
-    <div v-else class="h-full grid place-content-center">
-      <p
-        v-if="validVenues?.length && upcomingMenu && upcomingVenue"
-        class="rounded shadow bg-white p-8 text-xl"
-      >
-        Next up: <strong>{{ upcomingMenu.venueName.name }}</strong>
+    <component v-if="!error && selectedVenue" :is="layoutComponent" :venue="selectedVenue" />
+    <Card v-else title="Something went wrong" class="m-8">
+      <p>
+        {{ error }}
       </p>
-      <p v-else class="rounded shadow bg-white p-8 text-xl">Check back tomorrow</p>
-    </div>
+    </Card>
   </div>
 </template>

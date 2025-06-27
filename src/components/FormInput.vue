@@ -4,6 +4,7 @@ import { useId } from 'vue'
 interface Props {
   id?: string
   label: string
+  help?: string
   error?: string
   postFix?: string
 }
@@ -15,7 +16,14 @@ const model = defineModel<string | number>()
 
 <template>
   <div class="flex flex-col gap-1">
-    <label :for="id" class="font-bold">{{ label }}</label>
+    <div class="flex justify-between items-center">
+      <label :for="id" class="font-bold">{{ label }}</label>
+      <span
+        v-if="help"
+        class="text-[0.8em] pt-0.5 px-1 rounded [background-color:color-mix(in_oklch,currentColor,transparent_85%)] [color:color-mix(in_oklch,currentColor,transparent_45%)]"
+        >{{ help }}</span
+      >
+    </div>
     <div
       class="flex gap-2 border rounded px-2 py-1 w-min focus-within:outline-1 focus-within:outline-solid focus-within:outline-(--secondary-color)"
     >

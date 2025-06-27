@@ -2,7 +2,7 @@ import * as Menus from '@/models/menus'
 import * as Pioneer from '@/functions/pioneerMenu'
 import { transformPioneerMenuToMenu } from '@/functions/transformers'
 import { Temporal } from 'temporal-polyfill'
-import { ref, toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
+import { computed, ref, toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
 import type { TMenu } from '@/db'
 
 export interface Menu {
@@ -23,6 +23,10 @@ export interface MenuItem {
   allergens: string[]
 }
 
+const isValid = (menuData: Menu) => {
+  return !menuData.venues.every((venue) => venue.name === 'No Venues Found')
+}
+
 export default function useMenuData(
   startDate: MaybeRefOrGetter<
     Temporal.PlainDate | Temporal.PlainDateTime
@@ -35,14 +39,26 @@ export default function useMenuData(
   const fetchMenu = async (date: string) => {
     try {
       let menuData = await Menus.get(date)
+
       if (!menuData) {
         loading.value = true
         menuData = (await Pioneer.fetchAndCache(date)) as TMenu
+      } else if (!isValid(menuData)) {
+        loading.value = true
+        Pioneer.fetchAndCache(date)
+          .then((menuData) => {
+            if (isValid(menuData)) {
+              data.value = menuData
+            }
+          })
+          .finally(() => (loading.value = false))
       }
 
+      error.value = undefined
       return menuData
     } catch (e) {
-      error.value = e
+      error.value = `No venues found for ${date}`
+      throw e
     } finally {
       loading.value = false
     }
@@ -57,8 +73,11 @@ export default function useMenuData(
     data.value = await fetchMenu(date.toString())
   })
 
+  const venues = computed(() => data.value?.venues)
+
   return {
     menu: data,
+    venues,
     fetchMenu,
     loading,
     error,

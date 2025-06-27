@@ -17,6 +17,10 @@ const classes = computed(() => {
     'touch-manipulation',
     'cursor-pointer',
     'transition-all',
+    'hover:outline-1',
+    'hover:outline-(--secondary-color)',
+    'focus:outline-1',
+    'focus:outline-(--secondary-color)',
   ]
 
   switch (variant) {

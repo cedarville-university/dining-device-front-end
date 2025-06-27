@@ -15,7 +15,6 @@ const { devices } = storeToRefs(useDevicesStore())
 
 const device = ref(configuration.device)
 const orientation = ref(configuration.orientation)
-const layout = ref(configuration.layout?.component)
 
 const toSeconds = (ms: number = 0) => ms / 1000
 const toMinutes = (ms: number = 0) => ms / (60 * 1000)
@@ -48,26 +47,15 @@ const canvasBgColor = ref(configuration.canvasBg)
 const canvasColor = ref(configuration.canvasColor)
 
 const showBezel = ref(configuration.showBezel)
-const bezelWidth = ref(configuration.bezelWidth)
+const bezelWidth = ref(configuration.layout?.bezel.width)
 const bezelBgColor = ref(configuration.bezelBg)
 
 const dimensions = computed(() =>
   device.value?.dimensions.find((dim: TDeviceDimension) => dim.orientation === orientation.value),
 )
 
-const layoutDescription = computed(() => {
-  switch (layout.value) {
-    case 'GridLayout':
-      return 'The grid layout renders the menu as a grid of cards. The number of columns and rows will be determined dynamically based on the number of menut items.'
-    default:
-      return undefined
-  }
-})
-
 const message = ref()
 const handleSubmit = async (e: SubmitEvent) => {
-  if (!layout.value) return
-
   configuration.update({
     orientation: orientation.value,
     showBezel: showBezel.value,
@@ -77,7 +65,6 @@ const handleSubmit = async (e: SubmitEvent) => {
       pioneer: toMilliseconds(+pioneerRefreshRate.value, 'hours'),
     },
     layout: {
-      component: layout.value,
       colors: {
         primary: colorsPrimary.value,
         secondary: colorsSecondary.value,
@@ -141,18 +128,6 @@ const handleSubmit = async (e: SubmitEvent) => {
         "
         v-model="orientation"
       />
-      <FormSelect
-        class="row-start-4 col-span-3 @[600px]/content:col-span-2"
-        label="Layout"
-        :options="[{ value: 'GridLayout', label: 'Grid Layout' }]"
-        v-model="layout"
-      />
-      <div
-        v-if="layoutDescription"
-        class="row-start-4 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4 text-sm text-gray-500"
-      >
-        {{ layoutDescription }}
-      </div>
     </div>
 
     <div class="w-full grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">

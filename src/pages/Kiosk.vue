@@ -17,13 +17,7 @@ import UpNextTomorrowCard from '@/components/UpNextTomorrowCard.vue'
 
 const router = useRouter()
 
-const { menus, layout, auth } = storeToRefs(useConfigurationStore())
-
-const layoutComponent = computed(() => {
-  if (!layout.value) return undefined
-
-  return defineAsyncComponent(() => import(`../layouts/${layout.value?.component}.vue`))
-})
+const { menus, auth } = storeToRefs(useConfigurationStore())
 
 // this starts a scheduled refresh o fthe current time based
 // on the configured layout refresh rate. This will pickup changes
@@ -44,6 +38,12 @@ const activeMenu = computed(() =>
   menus.value?.find((menu) => isBetween(nowTime.value, menu.startTime, menu.endTime)),
 )
 
+const layoutComponent = computed(() => {
+  if (!activeMenu.value) return undefined
+
+  return defineAsyncComponent(() => import(`../layouts/${activeMenu.value?.layout.component}.vue`))
+})
+
 const upcomingMenu = computed(() =>
   menus.value?.find((menu) => isBefore(nowTime.value, menu.startTime)),
 )
@@ -56,7 +56,7 @@ const activeVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
   for (const venue of validVenues.value) {
-    if (venue.name === activeMenu.value?.venueName?.apiName) return venue
+    if (venue.name === activeMenu.value?.venue?.apiName) return venue
   }
 })
 
@@ -64,11 +64,21 @@ const upcomingVenue = computed((): Venue | undefined => {
   if (!validVenues.value) return
 
   for (const venue of validVenues.value) {
-    if (venue.name === upcomingMenu.value?.venueName?.apiName) return venue
+    if (venue.name === upcomingMenu.value?.venue?.apiName) return venue
   }
 })
 
 const { exitFullscreen } = useFullscreen()
+
+onMounted(() => window.addEventListener('keydown', handleKeypress))
+onUnmounted(() => window.removeEventListener('keydown', handleKeypress))
+
+const handleKeypress = (e: KeyboardEvent) => {
+  if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+    pinEnter(e.key)
+  }
+}
+
 let kioskPin = ref('')
 let timeoutId = 0
 const pinEnter = (num: '1' | '2' | '3' | '4') => {

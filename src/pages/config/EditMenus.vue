@@ -10,24 +10,30 @@ import PageTitle from '@/components/PageTitle.vue'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { storeToRefs } from 'pinia'
 import { useVenueNamesStore } from '@/stores/venueNamesStore'
+import { useLayoutsStore } from '@/stores/layoutsStore'
+import { Temporal } from 'temporal-polyfill'
 
 const configuration = useConfigurationStore()
 const menus = ref(configuration.menus)
+const { layouts } = storeToRefs(useLayoutsStore())
 
 const addMenuItem = () => {
   if (!menus.value) menus.value = []
   if (!venueNames.value?.[0]) return
+  if (!layouts.value) return
 
   menus.value = [
     {
-      venueName: {
+      venue: {
         id: venueNames.value?.[0].id,
         name: venueNames.value?.[0].name,
         apiName: venueNames.value?.[0].apiName,
       },
-      venueId: venueNames.value?.[0].id ?? -1,
+      layout: layouts.value?.[0],
       startTime: '00:00',
-      endTime: '00:00',
+      startTimeObject: Temporal.PlainTime.from('00:00'),
+      endTime: '01:00',
+      endTimeObject: Temporal.PlainTime.from('01:00'),
     },
     ...menus.value,
   ]
@@ -36,7 +42,7 @@ const addMenuItem = () => {
 const removeMenuItem = (menu: TConfigMenu) => {
   const menuItemIndex = menus.value?.findIndex((m) => {
     return (
-      m.venueId === menu.venueId && m.startTime === menu.startTime && m.endTime === menu.endTime
+      m.venue.id === menu.venue.id && m.startTime === menu.startTime && m.endTime === menu.endTime
     )
   })
   menus.value = menus.value?.filter((_, index) => index !== menuItemIndex)
@@ -60,7 +66,7 @@ const handleSubmit = async () => {
   >
     <button
       @click="addMenuItem"
-      class="flex flex-col gap-2 items-center justify-center w-full aspect-square bg-white rounded-md shadow hover:bg-gray-50 active:bg-gray-50"
+      class="flex flex-col gap-2 items-center justify-center w-full aspect-square bg-white rounded-md shadow hover:bg-gray-50 active:bg-gray-50 hover:outline-1 hover:outline-(--secondary-color) focus-visible:outline-1 focus-visible:outline-(--secondary-color)"
       type="button"
     >
       <PlusCircleIcon class="size-6" />
@@ -68,16 +74,25 @@ const handleSubmit = async () => {
     </button>
     <div
       v-for="(menu, index) in menus"
-      :key="menu.venueId + menu.startTime + menu.endTime"
+      :key="menu.venue?.id + menu.startTime + menu.endTime"
       class="relative flex flex-col gap-2 bg-white p-4 shadow rounded-md"
     >
-      <button type="button" @click="removeMenuItem(menu)" class="absolute right-2 top-2">
+      <button
+        type="button"
+        @click="removeMenuItem(menu)"
+        class="absolute right-2 top-2 rounded-full hover:outline-1 hover:outline-(--secondary-color) focus-visible:outline-1 focus-visible:outline-(--secondary-color)"
+      >
         <XCircleIcon class="size-5" />
       </button>
       <FormSelect
+        label="Layout"
+        v-model="menu.layout"
+        :options="layouts?.map((l) => ({ value: l, label: l.name })) ?? []"
+      />
+      <FormSelect
         label="Name"
-        v-model="menu.venueId"
-        :options="venueNames?.map((v) => ({ value: v.id, label: v.name })) ?? []"
+        v-model="menu.venue"
+        :options="venueNames?.map((v) => ({ value: v, label: v.name })) ?? []"
       />
       <FormInput
         label="Start Time"

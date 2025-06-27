@@ -1,9 +1,17 @@
-import { db, type TConfigMenu, type TConfiguration, type TVenueName } from '@/db'
+import {
+  db,
+  type TConfigMenu,
+  type TConfiguration,
+  type TLayoutComponent,
+  type TVenueName,
+} from '@/db'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useVenueNamesStore } from './venueNamesStore'
 import { Temporal } from 'temporal-polyfill'
 import { deepUnref } from '@/functions/deepUnref'
+import { useLayoutsStore } from './layoutsStore'
+import { update } from '@/models/configuration'
 
 export const useConfigurationStore = defineStore('configuration', () => {
   const configuration = ref<TConfiguration>()
@@ -53,21 +61,21 @@ export const useConfigurationStore = defineStore('configuration', () => {
   const bezelBg = computed(() => layout.value?.bezel.bgColor ?? 'var(--color-black)')
   const bezelRadius = computed(() => bezelWidth.value / 2)
 
-  const { venueNames } = storeToRefs(useVenueNamesStore())
   const menus = computed(() => {
     return configuration.value?.menus
       .map((menu) => {
-        const venueName = venueNames.value?.find((name) => name.id === menu.venueId)
         return {
           ...menu,
-          venueName: { ...venueName },
-        } as TConfigMenu & { venueName: TVenueName }
+          startTimeObject: Temporal.PlainTime.from(menu.startTime),
+          endTimeObject: Temporal.PlainTime.from(menu.endTime),
+        } as TConfigMenu & {
+          startTimeObject: Temporal.PlainTime
+          endTimeObject: Temporal.PlainTime
+        }
       })
-      .sort((menuA, menuB) => {
-        if (menuA.startTime > menuB.startTime) return 1
-        if (menuA.startTime < menuB.startTime) return -1
-        return 0
-      })
+      .sort((menuA, menuB) =>
+        Temporal.PlainTime.compare(menuA.startTimeObject, menuB.startTimeObject),
+      )
   })
 
   const auth = computed(() => configuration.value?.auth)
