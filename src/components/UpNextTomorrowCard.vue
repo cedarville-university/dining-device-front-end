@@ -20,13 +20,9 @@ const validVenues = computed(() => {
   return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
 })
 
-const upcomingVenue = computed((): Venue | undefined => {
-  if (!validVenues.value) return
-
-  for (const venue of validVenues.value) {
-    if (venue.name === upcomingMenu.value?.venue?.apiName) return venue
-  }
-})
+const upcomingVenue = computed((): Venue | undefined =>
+  validVenues.value?.find((venue) => venue.name === upcomingMenu.value?.venue.name),
+)
 
 const startsAt = computed(() => {
   if (!upcomingMenu.value) return
@@ -52,12 +48,12 @@ const endsAt = computed(() => {
 <template>
   <div class="grid h-full place-content-center w-full">
     <InfoCard :title="date.toLocaleString(undefined, { weekday: 'long' })">
-      <div v-if="menu">
-        <p>Here's a peek at what's on the menu tomorrow!</p>
+      <div v-if="upcomingVenue" class="space-y-4">
         <div>
           <span class="text-gray-600 text-sm">{{ startsAt }} - {{ endsAt }}</span>
           <h4 class="text-2xl font-semibold">{{ upcomingMenu?.venue?.apiName }}</h4>
         </div>
+        <p>Here's a peek at what's on the menu tomorrow!</p>
         <ul>
           <li
             v-for="item in upcomingVenue?.items"
@@ -68,7 +64,10 @@ const endsAt = computed(() => {
           </li>
         </ul>
       </div>
-      <div v-else>No menu available for tomorrow</div>
+      <div v-else class="space-y-4">
+        <h4 class="text-2xl font-semibold">No menu tomorrow</h4>
+        <p>There is no menu available for tomorrow. Check back tomorrow.</p>
+      </div>
     </InfoCard>
   </div>
 </template>
