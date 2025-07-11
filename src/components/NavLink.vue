@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-defineProps<{ to: string | { name: string } }>()
+defineProps<{
+  to: string | { name: string; params?: Record<string, string | number | undefined> }
+}>()
 </script>
 
 <template>
