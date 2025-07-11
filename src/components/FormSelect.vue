@@ -24,7 +24,7 @@ const model = defineModel<T>()
       <label :for="id" class="font-bold">{{ label }}</label>
       <span
         v-if="help"
-        class="text-[0.8em]/[1] p-1 rounded [background-color:color-mix(in_oklch,currentColor,transparent_85%)] [color:color-mix(in_oklch,currentColor,transparent_45%)]"
+        class="text-[0.8em] leading-none p-1 rounded [background-color:color-mix(in_oklch,currentColor,transparent_85%)] [color:color-mix(in_oklch,currentColor,transparent_45%)]"
       >
         {{ help }}
       </span>
