@@ -120,7 +120,7 @@ db.on('populate', async (trans: Transaction) => {
   try {
     const deviceId = await trans.table('devices').add({
       id: 1,
-      name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
+      name: 'Mimo Adapt-IQV 10.1 Digital Signage Tablet',
       model: 'MCT-10HPQ',
       dimensions: [
         {
