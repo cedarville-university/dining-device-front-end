@@ -20,7 +20,7 @@ const model = defineModel<string | number>()
       <label :for="id" class="font-bold">{{ label }}</label>
       <span
         v-if="help"
-        class="text-[0.8em]/[1] p-1 rounded [background-color:color-mix(in_oklch,currentColor,transparent_85%)] [color:color-mix(in_oklch,currentColor,transparent_45%)]"
+        class="text-[0.8em] leading-none p-1 rounded [background-color:color-mix(in_oklch,currentColor,transparent_85%)] [color:color-mix(in_oklch,currentColor,transparent_45%)]"
         >{{ help }}</span
       >
     </div>
@@ -31,10 +31,11 @@ const model = defineModel<string | number>()
         v-if="$attrs.type === 'textarea'"
         :id
         v-model="model"
-        class="outline-none max-w-full"
+        class="outline-none resize"
         v-bind="$attrs"
+        required
       ></textarea>
-      <input v-else :id v-model="model" class="outline-none max-w-full" v-bind="$attrs" />
+      <input v-else :id v-model="model" class="outline-none max-w-full" v-bind="$attrs" required />
       <div v-if="postFix" class="text-gray-400">{{ postFix }}</div>
     </div>
 
