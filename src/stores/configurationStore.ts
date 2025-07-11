@@ -1,17 +1,8 @@
-import {
-  db,
-  type TConfigMenu,
-  type TConfiguration,
-  type TLayoutComponent,
-  type TVenueName,
-} from '@/db'
+import { db, type TConfigMenu, type TConfiguration } from '@/db'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
-import { useVenueNamesStore } from './venueNamesStore'
 import { Temporal } from 'temporal-polyfill'
 import { deepUnref } from '@/functions/deepUnref'
-import { useLayoutsStore } from './layoutsStore'
-import { update } from '@/models/configuration'
 
 export const useConfigurationStore = defineStore('configuration', () => {
   const configuration = ref<TConfiguration>()
@@ -43,8 +34,11 @@ export const useConfigurationStore = defineStore('configuration', () => {
 
   const layout = computed(() => configuration.value?.layout)
   const primaryColor = computed(() => layout.value?.colors.primary ?? '#003865')
+  const primaryTextColor = computed(() => layout.value?.colors.primaryText ?? '#ffffff')
   const secondaryColor = computed(() => layout.value?.colors.secondary ?? '#fcb716')
+  const secondaryTextColor = computed(() => layout.value?.colors.secondaryText ?? '#ffffff')
   const grayColor = computed(() => layout.value?.colors.gray ?? '#efefef')
+  const grayTextColor = computed(() => layout.value?.colors.grayText ?? '#333333')
 
   const headerHeight = computed(() => layout.value?.header.height ?? 0)
   const headerBg = computed(() => layout.value?.header.bgColor ?? '#003865')
@@ -97,8 +91,11 @@ export const useConfigurationStore = defineStore('configuration', () => {
     pioneerRefreshRate,
     layout,
     primaryColor,
+    primaryTextColor,
     secondaryColor,
+    secondaryTextColor,
     grayColor,
+    grayTextColor,
     headerHeight,
     headerBg,
     headerColor,

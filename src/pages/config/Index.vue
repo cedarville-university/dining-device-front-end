@@ -18,8 +18,11 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
       Exit Configuration
     </AppButton>
   </PageHeader>
-  <div class="grid grid-cols-4 h-(--view-height)">
-    <aside class="col-span-1 bg-white h-full overflow-auto overscroll-y-contain p-4 shadow">
+
+  <div class="flex h-(--view-height)">
+    <aside
+      class="col-span-1 w-(--config-sidebar-width) bg-white h-full overflow-auto overscroll-y-contain p-4 shadow"
+    >
       <nav>
         <ul class="flex flex-col gap-2">
           <li class="flex">
@@ -37,7 +40,9 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
         </ul>
       </nav>
     </aside>
-    <main class="group/content @container/content relative h-full col-span-3 p-4 overflow-auto">
+    <main
+      class="group/content @container/content relative h-full w-(--config-content-width) p-4 overflow-auto"
+    >
       <RouterView />
     </main>
   </div>

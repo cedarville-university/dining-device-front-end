@@ -137,7 +137,12 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 10 * 60 * 60 * 1000)
     v-if="!loading"
     class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
   >
-    <component v-if="!error && selectedVenue" :is="layoutComponent" :venue="selectedVenue" />
+    <component
+      v-if="!error && selectedVenue"
+      :is="layoutComponent"
+      :venue="selectedVenue"
+      :with-header="false"
+    />
     <div v-else class="grid place-content-center min-h-(--view-height)">
       <Card title="Something went wrong" class="m-8 min-w-lg text-center">
         <p>

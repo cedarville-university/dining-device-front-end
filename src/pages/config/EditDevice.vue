@@ -5,13 +5,17 @@ import PageTitle from '@/components/PageTitle.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import FormInput from '@/components/FormInput.vue'
 import AppButton from '@/components/AppButton.vue'
-import Alert from '@/components/Alert.vue'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { useDevicesStore } from '@/stores/devicesStore'
 import { storeToRefs } from 'pinia'
+import NavLink from '@/components/NavLink.vue'
+import FormGroup from '@/components/FormGroup.vue'
+import FormSubmit from '@/components/FormSubmit.vue'
+import Alert from '@/components/Alert.vue'
 
 const configuration = useConfigurationStore()
-const { devices } = storeToRefs(useDevicesStore())
+const devicesStore = useDevicesStore()
+const { devices } = storeToRefs(devicesStore)
 
 const device = ref(configuration.device)
 const orientation = ref(configuration.orientation)
@@ -36,8 +40,11 @@ const menuRefreshRate = ref(toHours(configuration.refreshRates?.menu))
 const pioneerRefreshRate = ref(toHours(configuration.refreshRates?.pioneer))
 
 const colorsPrimary = ref(configuration.primaryColor)
+const colorsPrimaryText = ref(configuration.primaryTextColor)
 const colorsSecondary = ref(configuration.secondaryColor)
+const colorsSecondaryText = ref(configuration.secondaryTextColor)
 const colorsGray = ref(configuration.grayColor)
+const colorsGrayText = ref(configuration.grayTextColor)
 
 const headerHeight = ref(configuration.headerHeight)
 const headerBgColor = ref(configuration.headerBg)
@@ -67,8 +74,11 @@ const handleSubmit = async (e: SubmitEvent) => {
     layout: {
       colors: {
         primary: colorsPrimary.value,
+        primaryText: colorsPrimaryText.value,
         secondary: colorsSecondary.value,
+        secondaryText: colorsSecondaryText.value,
         gray: colorsGray.value,
+        grayText: colorsGrayText.value,
       },
       canvas: {
         bgColor: canvasBgColor.value,
@@ -89,36 +99,46 @@ const handleSubmit = async (e: SubmitEvent) => {
 
   message.value = 'Save successful'
 }
+
+const handleDelete = () => {
+  if (device.value === undefined) return
+  if (device.value.id === configuration?.device?.id) return
+
+  devicesStore.del(device.value.id)
+  device.value = configuration.device
+  message.value = 'Device deleted successfully'
+}
 </script>
 
 <template>
   <PageTitle>Device Setup</PageTitle>
 
-  <form id="EditForm" @submit.prevent="(e) => handleSubmit(e as SubmitEvent)" class="grid gap-4">
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold row-start-1 col-span-full">Device</h3>
-      <FormSelect
-        v-if="devices"
-        class="row-start-2 col-span-3 @[600px]/content:col-span-2"
-        label="Model"
-        :options="
-          devices?.map((device: TDevice) => ({
-            label: device.model,
-            value: device,
-          }))
-        "
-        v-model="device"
-      />
-      <div class="row-start-2 col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
-        <h3 class="font-semibold">{{ device?.name }}</h3>
-        <div class="text-sm text-gray-500">
-          {{ device?.model }}<br />
-          {{ dimensions?.width }}x{{ dimensions?.height }}
+  <form id="EditForm" @submit.prevent="(e) => handleSubmit(e as SubmitEvent)" class="space-y-4">
+    <FormGroup title="Device">
+      <div class="flex gap-4">
+        <FormSelect
+          v-if="devices"
+          class="flex-1"
+          label="Model"
+          :options="
+            devices?.map((device: TDevice) => ({
+              label: device.model,
+              value: device,
+            }))
+          "
+          v-model="device"
+        />
+        <div class="flex-1 @[600px]/content:flex-3 border-l-5 pl-4">
+          <h3 class="font-semibold">{{ device?.name }}</h3>
+          <div class="text-sm text-gray-500">
+            {{ device?.model }}<br />
+            {{ dimensions?.width }}x{{ dimensions?.height }}
+          </div>
         </div>
       </div>
       <FormSelect
         v-if="device?.dimensions"
-        class="row-start-3 col-span-3 @[600px]/content:col-span-2"
+        class="w-max"
         label="Orientation"
         :options="
           device.dimensions.map((dim: TDeviceDimension) => ({
@@ -128,130 +148,118 @@ const handleSubmit = async (e: SubmitEvent) => {
         "
         v-model="orientation"
       />
-    </div>
 
-    <div class="w-full grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold col-span-full">Refresh Rates</h3>
-      <FormInput
-        type="number"
-        step="1"
-        min="5"
-        max="60"
-        class="col-span-3 @[600px]/content:col-span-2"
-        label="Layout"
-        v-model="layoutRefreshRate"
-        post-fix="S"
-      />
-      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
-        <h3 class="font-semibold">Every {{ layoutRefreshRate }} seconds</h3>
-        <div class="text-sm text-gray-500">
-          How often should the device check for venue changes?
+      <template #actions>
+        <div class="flex gap-2 w-full">
+          <NavLink
+            :to="{ name: 'edit-device-details', params: { deviceId: device?.id } }"
+            class="w-max text-sm bg-(--primary-color)! text-white"
+            >Edit Device Details</NavLink
+          >
+          <AppButton :to="{ name: 'add-device' }" variant="ghost" class="text-sm"
+            >Add new device</AppButton
+          >
+          <AppButton
+            v-if="device?.id !== configuration?.device?.id"
+            type="button"
+            @click="handleDelete"
+            class="bg-red-500 hover:bg-red-600 active:bg-red-600 text-white hover:text-white ml-auto text-sm border-0"
+            >Delete Device</AppButton
+          >
+        </div>
+      </template>
+    </FormGroup>
+
+    <FormGroup title="Refresh Rates">
+      <div class="flex gap-2">
+        <FormInput
+          type="number"
+          step="1"
+          min="5"
+          max="60"
+          class="flex-1"
+          label="Layout"
+          v-model="layoutRefreshRate"
+          post-fix="S"
+        />
+        <div class="flex-1 @[600px]/content:flex-3 border-l-5 pl-4">
+          <h3 class="font-semibold">Every {{ layoutRefreshRate }} seconds</h3>
+          <div class="text-sm text-gray-500">
+            How often should the device check for venue schedule changes?
+          </div>
         </div>
       </div>
-      <FormInput
-        type="number"
-        step="1"
-        min="1"
-        max="12"
-        class="col-span-3 @[600px]/content:col-span-2"
-        label="Menu Data"
-        v-model="menuRefreshRate"
-        post-fix="HR"
-      />
-      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
-        <h3 class="font-semibold">Every {{ menuRefreshRate }} hours</h3>
-        <div class="text-sm text-gray-500">
-          How often should the device check for menu changes? This will pick up any new changes to
-          the menu data stored in the database.
+
+      <div class="flex gap-2">
+        <FormInput
+          type="number"
+          step="1"
+          min="1"
+          max="12"
+          class="flex-1"
+          label="Menu Data"
+          v-model="menuRefreshRate"
+          post-fix="HR"
+        />
+        <div class="flex-1 @[600px]/content:flex-3 border-l-5 pl-4">
+          <h3 class="font-semibold">Every {{ menuRefreshRate }} hours</h3>
+          <div class="text-sm text-gray-500">
+            How often should the device check for menu changes? This will fetch for menu changes
+            from the pioneer API for the current day.
+          </div>
         </div>
       </div>
-      <FormInput
-        type="number"
-        step="1"
-        min="2"
-        max="12"
-        class="col-span-3 @[600px]/content:col-span-2"
-        label="Pioneer Data"
-        v-model="pioneerRefreshRate"
-        post-fix="HR"
-      />
-      <div class="col-span-5 @[600px]/content:col-span-6 border-l-5 pl-4">
-        <h3 class="font-semibold">Every {{ pioneerRefreshRate }} hours</h3>
-        <div class="text-sm text-gray-500">
-          How often should the device fetch data from pioneer? This will fetch and store menu data
-          in the database.
+      <div class="flex gap-2">
+        <FormInput
+          type="number"
+          step="1"
+          min="2"
+          max="12"
+          label="Pioneer Data"
+          v-model="pioneerRefreshRate"
+          post-fix="HR"
+          class="flex-1"
+        />
+        <div class="flex-1 @[600px]/content:flex-3 border-l-5 pl-4">
+          <h3 class="font-semibold">Every {{ pioneerRefreshRate }} hours</h3>
+          <div class="text-sm text-gray-500">
+            How often should the device fetch and cache data from pioneer servers? This will fetch
+            menus for the next 7 days per the schedule.
+          </div>
         </div>
       </div>
-    </div>
+    </FormGroup>
 
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold col-span-full">Colors</h3>
+    <FormGroup title="Colors">
+      <FormInput label="Primary Color" type="color" v-model="colorsPrimary" />
+      <FormInput label="Primary Text Color" type="color" v-model="colorsPrimaryText" />
+      <FormInput label="Secondary Color" type="color" v-model="colorsSecondary" />
+      <FormInput label="Secondary Text Color" type="color" v-model="colorsSecondaryText" />
+      <FormInput label="Gray Color" type="color" v-model="colorsGray" />
+      <FormInput label="Gray Text Color" type="color" v-model="colorsGrayText" />
+    </FormGroup>
 
-      <FormInput
-        class="row-start-2 col-span-full"
-        label="Primary Color"
-        type="color"
-        v-model="colorsPrimary"
-      />
-      <FormInput
-        class="row-start-3 col-span-full"
-        label="Secondary Color"
-        type="color"
-        v-model="colorsSecondary"
-      />
-      <FormInput
-        class="row-start-4 col-span-full"
-        label="Gray Color"
-        type="color"
-        v-model="colorsGray"
-      />
-    </div>
-
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold col-span-full">Header</h3>
+    <FormGroup title="Header">
       <FormInput
         type="number"
         step="1"
         min="0"
         label="Height"
         v-model="headerHeight"
-        class="row-start-2 col-span-3 @[600px]/content:col-span-2 w-12"
         post-fix="px"
       />
 
-      <FormInput
-        class="row-start-3 col-span-full"
-        label="Background Color"
-        type="color"
-        v-model="headerBgColor"
-      />
-      <FormInput
-        class="row-start-4 col-span-full"
-        label="Text Color"
-        type="color"
-        v-model="headerColor"
-      />
-    </div>
+      <FormInput label="Background Color" type="color" v-model="headerBgColor" />
+      <FormInput label="Text Color" type="color" v-model="headerColor" />
+    </FormGroup>
 
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold">Canvas</h3>
-      <FormInput
-        class="row-start-2 col-span-full"
-        label="Background Color"
-        type="color"
-        v-model="canvasBgColor"
-      />
-      <FormInput
-        class="row-start-3 col-span-full"
-        label="Text Color"
-        type="color"
-        v-model="canvasColor"
-      />
-    </div>
+    <FormGroup title="Canvas">
+      <FormInput label="Background Color" type="color" v-model="canvasBgColor" />
+      <FormInput label="Text Color" type="color" v-model="canvasColor" />
+    </FormGroup>
 
-    <div class="w-full grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <h3 class="font-semibold col-span-full">Bezel</h3>
-      <p class="col-span-full text-sm text-gray-400">
+    <FormGroup title="Bezel">
+      <p class="-mt-6 col-span-full text-sm text-gray-400">
         The bezel is only used when testing the device on a computer.
       </p>
       <FormSelect
@@ -261,24 +269,14 @@ const handleSubmit = async (e: SubmitEvent) => {
           { value: false, label: 'No' },
         ]"
         v-model="showBezel"
-        class="row-start-3 col-span-2"
+        class="w-max"
       />
-      <FormInput
-        type="number"
-        step="1"
-        min="0"
-        label="Width"
-        v-model="bezelWidth"
-        class="row-start-4 col-span-3 @[600px]/content:col-span-2 w-12"
-        post-fix="px"
-      />
+      <FormInput type="number" step="1" min="0" label="Width" v-model="bezelWidth" post-fix="px" />
+      <FormInput label="Color" type="color" v-model="bezelBgColor" />
+    </FormGroup>
 
-      <FormInput class="row-start-5" label="Color" type="color" v-model="bezelBgColor" />
-    </div>
+    <FormSubmit form="EditForm" />
   </form>
 
   <Alert v-model="message" />
-  <Teleport to="#PageHeaderAction" defer>
-    <AppButton form="EditForm" type="submit"> Save </AppButton>
-  </Teleport>
 </template>

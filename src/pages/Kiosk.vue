@@ -10,29 +10,29 @@ import useScheduledMenuSync from '@/composables/useScheduledMenuSync'
 import useScheduledTimeSync from '@/composables/useScheduledTimeSync'
 import { storeToRefs } from 'pinia'
 import { useConfigurationStore } from '@/stores/configurationStore'
-import useFullscreen from '@/composables/useFullscreen'
 import { isBefore, isBetween } from '@/functions/time'
 import UpNextCard from '@/components/UpNextCard.vue'
 import UpNextTomorrowCard from '@/components/UpNextTomorrowCard.vue'
+import { useWindowEvent } from '@/composables/useWindowEvent'
 
 const router = useRouter()
 
 const { menus, auth } = storeToRefs(useConfigurationStore())
 
-// this starts a scheduled refresh o fthe current time based
+// this starts a scheduled refresh of the current time based
 // on the configured layout refresh rate. This will pickup changes
 // from one menu to the next in the UI
 const { time: nowTime } = useScheduledTimeSync()
+
+// start pioneer background fetch
+// defaults to fetching the next 7 days
+// every 6 hours
+usePioneerFetchAndCache(7)
 
 // this starts a scheduled sync of the menu data stored
 // in the localdb for the current date. If the menu
 // doesn't exist, pioneer will be fetched
 const { data: menu, loading } = useScheduledMenuSync()
-
-// start pioneer background fetch
-// defaults to fetching the next 5 days
-// every 6 hours
-usePioneerFetchAndCache(5)
 
 const activeMenu = computed(() =>
   menus.value?.find((menu) => isBetween(nowTime.value, menu.startTime, menu.endTime)),
@@ -48,36 +48,13 @@ const upcomingMenu = computed(() =>
   menus.value?.find((menu) => isBefore(nowTime.value, menu.startTime)),
 )
 
-const validVenues = computed(() => {
-  return menu.value?.venues.filter((venue) => venue.name !== 'No Venues Found')
-})
+const activeVenue = computed((): Venue | undefined =>
+  menu.value?.venues.find((venue) => venue.name === activeMenu.value?.venue.apiName),
+)
 
-const activeVenue = computed((): Venue | undefined => {
-  if (!validVenues.value) return
-
-  for (const venue of validVenues.value) {
-    if (venue.name === activeMenu.value?.venue?.apiName) return venue
-  }
-})
-
-const upcomingVenue = computed((): Venue | undefined => {
-  if (!validVenues.value) return
-
-  for (const venue of validVenues.value) {
-    if (venue.name === upcomingMenu.value?.venue?.apiName) return venue
-  }
-})
-
-const { exitFullscreen } = useFullscreen()
-
-onMounted(() => window.addEventListener('keydown', handleKeypress))
-onUnmounted(() => window.removeEventListener('keydown', handleKeypress))
-
-const handleKeypress = (e: KeyboardEvent) => {
-  if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
-    pinEnter(e.key)
-  }
-}
+const upcomingVenue = computed((): Venue | undefined =>
+  menu.value?.venues.find((venue) => venue.name === upcomingMenu.value?.venue.apiName),
+)
 
 let kioskPin = ref('')
 let timeoutId = 0
@@ -86,7 +63,6 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
   kioskPin.value += num
 
   if (kioskPin.value === auth.value?.kiosk) {
-    exitFullscreen()
     router.replace({ name: 'home' })
   } else if (kioskPin.value.length === 4) {
     kioskPin.value = ''
@@ -96,23 +72,26 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
     }, 750)
   }
 }
+
+useWindowEvent('keydown', (e) => {
+  if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+    pinEnter(e.key)
+  }
+})
 </script>
 
 <template>
-  <PageHeader :title="activeVenue?.name ?? ''">
-    <Spinner v-if="loading" />
-    <div
-      class="text-center rounded px-3 py-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
-    >
-      {{ Temporal.Now.plainDateISO().toLocaleString() }}
-      {{ nowTime.toLocaleString() }}
-    </div>
-  </PageHeader>
-  <div
-    v-if="!loading"
-    class="group/content @container/content h-(--view-height) w-(--view-width) overflow-auto overscroll-contain"
-  >
-    <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue" />
+  <div class="absolute w-full h-full">
+    <component v-if="activeVenue" :is="layoutComponent" :venue="activeVenue">
+      <template #headerAction>
+        <Spinner v-if="loading" />
+        <div
+          class="text-center rounded px-3 py-2 w-50 bg-(--header-color)/10 border border-(--header-color)/12"
+        >
+          {{ Temporal.Now.plainDateISO().toLocaleString() }} {{ nowTime.toLocaleString() }}
+        </div>
+      </template>
+    </component>
     <template v-else>
       <UpNextCard
         v-if="upcomingMenu && upcomingVenue"
@@ -121,16 +100,16 @@ const pinEnter = (num: '1' | '2' | '3' | '4') => {
       />
       <UpNextTomorrowCard v-else />
     </template>
-  </div>
 
-  <div
-    class="absolute z-100 inset-0 w-(--device-width) h-(--device-height) grid grid-cols-2 grid-rows-2 overscroll-contain"
-  >
-    <button @click="pinEnter('1')"></button>
-    <button @click="pinEnter('2')"></button>
-    <button @click="pinEnter('3')"></button>
-    <button @click="pinEnter('4')"></button>
+    <div
+      class="absolute z-100 inset-0 w-(--device-width) h-(--device-height) grid grid-cols-2 grid-rows-2 overscroll-contain"
+    >
+      <button @click="pinEnter('1')"></button>
+      <button @click="pinEnter('2')"></button>
+      <button @click="pinEnter('3')"></button>
+      <button @click="pinEnter('4')"></button>
 
-    <div class="absolute bottom-1 right-1 text-2xl font-bold">{{ kioskPin }}</div>
+      <div class="absolute bottom-1 right-1 text-2xl font-bold">{{ kioskPin }}</div>
+    </div>
   </div>
 </template>

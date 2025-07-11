@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { type TConfigMenu } from '@/db'
 import { PlusCircleIcon, XCircleIcon } from '@heroicons/vue/20/solid'
-import { ref } from 'vue'
-import AppButton from '@/components/AppButton.vue'
+import { ref, useId } from 'vue'
 import Alert from '@/components/Alert.vue'
 import FormInput from '@/components/FormInput.vue'
 import FormSelect from '@/components/FormSelect.vue'
@@ -12,9 +11,17 @@ import { storeToRefs } from 'pinia'
 import { useVenueNamesStore } from '@/stores/venueNamesStore'
 import { useLayoutsStore } from '@/stores/layoutsStore'
 import { Temporal } from 'temporal-polyfill'
+import FormGroup from '@/components/FormGroup.vue'
+import FormSubmit from '@/components/FormSubmit.vue'
+import { deepUnref } from '@/functions/deepUnref'
 
 const configuration = useConfigurationStore()
-const menus = ref(configuration.menus)
+const menus = ref<
+  (TConfigMenu & {
+    startTimeObject: Temporal.PlainTime
+    endTimeObject: Temporal.PlainTime
+  })[]
+>(deepUnref(configuration.menus))
 const { layouts } = storeToRefs(useLayoutsStore())
 
 const addMenuItem = () => {
@@ -72,11 +79,7 @@ const handleSubmit = async () => {
       <PlusCircleIcon class="size-6" />
       <span>Add</span>
     </button>
-    <div
-      v-for="(menu, index) in menus"
-      :key="menu.venue?.id + menu.startTime + menu.endTime"
-      class="relative flex flex-col gap-2 bg-white p-4 shadow rounded-md"
-    >
+    <FormGroup v-for="(menu, index) in menus" :key="useId()" class="relative">
       <button
         type="button"
         @click="removeMenuItem(menu)"
@@ -85,14 +88,14 @@ const handleSubmit = async () => {
         <XCircleIcon class="size-5" />
       </button>
       <FormSelect
+        label="Venue"
+        v-model="menu.venue"
+        :options="venueNames?.map((v) => ({ value: v, label: v.name })) ?? []"
+      />
+      <FormSelect
         label="Layout"
         v-model="menu.layout"
         :options="layouts?.map((l) => ({ value: l, label: l.name })) ?? []"
-      />
-      <FormSelect
-        label="Name"
-        v-model="menu.venue"
-        :options="venueNames?.map((v) => ({ value: v, label: v.name })) ?? []"
       />
       <FormInput
         label="Start Time"
@@ -108,10 +111,9 @@ const handleSubmit = async () => {
         :max="menus?.[index + 1]?.startTime"
         v-model="menu.endTime"
       />
-    </div>
+    </FormGroup>
+
+    <FormSubmit form="EditForm" />
   </form>
   <Alert v-model="message" />
-  <Teleport to="#PageHeaderAction">
-    <AppButton form="EditForm" type="submit"> Save </AppButton>
-  </Teleport>
 </template>

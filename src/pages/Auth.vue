@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useAuth from '@/composables/useAuth'
 import useIdleTimeout from '@/composables/useIdleTimeout'
+import { useWindowEvent } from '@/composables/useWindowEvent'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { BackspaceIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { storeToRefs } from 'pinia'
@@ -14,12 +15,12 @@ const pin = ref('')
 const router = useRouter()
 const { login } = useAuth()
 
-onMounted(() => window.addEventListener('keydown', handleKeypress))
-onUnmounted(() => window.removeEventListener('keydown', handleKeypress))
-
 const handleKeypress = (e: KeyboardEvent) => {
   handleInput(e.key)
 }
+
+useWindowEvent('keydown', handleKeypress)
+
 const handleInput = (num: string) => {
   switch (num) {
     case 'Delete':

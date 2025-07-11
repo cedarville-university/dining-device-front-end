@@ -2,9 +2,10 @@
 import { ref } from 'vue'
 import PageTitle from '@/components/PageTitle.vue'
 import FormInput from '@/components/FormInput.vue'
-import AppButton from '@/components/AppButton.vue'
-import Alert from '@/components/Alert.vue'
 import { useConfigurationStore } from '@/stores/configurationStore'
+import FormGroup from '@/components/FormGroup.vue'
+import FormSubmit from '@/components/FormSubmit.vue'
+import Alert from '@/components/Alert.vue'
 
 const configuration = useConfigurationStore()
 const apiUrl = ref(configuration.api?.url)
@@ -28,21 +29,13 @@ const handleSubmit = async () => {
   <PageTitle>API Setup</PageTitle>
 
   <form id="EditForm" @submit.prevent="handleSubmit" class="grid gap-4">
-    <div class="grid grid-cols-8 gap-4 bg-white rounded-md p-4 shadow">
-      <FormInput
-        label="URL"
-        type="textarea"
-        v-model="apiUrl"
-        class="row-start-1 col-span-full w-50"
-        required
-      />
+    <FormGroup>
+      <FormInput label="URL" type="textarea" v-model="apiUrl" required class="w-md" />
+      <FormInput label="Campus" v-model="apiCampus" required />
+    </FormGroup>
 
-      <FormInput label="Campus" v-model="apiCampus" class="row-start-2 col-span-full" required />
-    </div>
+    <FormSubmit form="EditForm" />
   </form>
 
   <Alert v-model="message" />
-  <Teleport to="#PageHeaderAction" defer>
-    <AppButton form="EditForm" type="submit"> Save </AppButton>
-  </Teleport>
 </template>

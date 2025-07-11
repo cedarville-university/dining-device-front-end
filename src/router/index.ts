@@ -1,8 +1,10 @@
 import useAuth from '@/composables/useAuth'
 import Auth from '@/pages/Auth.vue'
+import AddDevice from '@/pages/config/AddDevice.vue'
 import EditApi from '@/pages/config/EditApi.vue'
 import EditAuth from '@/pages/config/EditAuth.vue'
 import EditDevice from '@/pages/config/EditDevice.vue'
+import EditDeviceDetails from '@/pages/config/EditDeviceDetails.vue'
 import EditMenus from '@/pages/config/EditMenus.vue'
 import { default as ConfigIndex } from '@/pages/config/Index.vue'
 import Index from '@/pages/Index.vue'
@@ -27,7 +29,18 @@ const router = createRouter({
       redirect: { name: 'edit-menus' },
       children: [
         { path: appRoot + 'config/menus', name: 'edit-menus', component: EditMenus },
-        { path: appRoot + 'config/device', name: 'edit-device', component: EditDevice },
+        {
+          path: appRoot + 'config/device',
+          name: 'edit-device',
+          component: EditDevice,
+        },
+        { path: appRoot + 'config/divice/add', name: 'add-device', component: AddDevice },
+        {
+          path: appRoot + 'config/device/:deviceId',
+          name: 'edit-device-details',
+          component: EditDeviceDetails,
+          props: true,
+        },
         { path: appRoot + 'config/auth', name: 'edit-auth', component: EditAuth },
         { path: appRoot + 'config/api', name: 'edit-api', component: EditApi },
       ],
