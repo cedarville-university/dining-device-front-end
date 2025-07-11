@@ -36,11 +36,11 @@ export default function useMenuData(
   const loading = ref(false)
   const error = ref()
 
-  const fetchMenu = async (date: string) => {
+  const fetchMenu = async (date: string, forceFetchAndCache = false) => {
     try {
       let menuData = await Menus.get(date)
 
-      if (!menuData) {
+      if (forceFetchAndCache || !menuData) {
         loading.value = true
         menuData = (await Pioneer.fetchAndCache(date)) as TMenu
       } else if (!isValid(menuData)) {

@@ -1,22 +1,14 @@
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { storeToRefs } from 'pinia'
 import { Temporal } from 'temporal-polyfill'
-import {
-  onUnmounted,
-  ref,
-  toValue,
-  watch,
-  watchEffect,
-  type ComputedRef,
-  type MaybeRefOrGetter,
-} from 'vue'
+import { onUnmounted, ref, watchEffect } from 'vue'
+import { useOffline } from './useOffline'
+import { useWindowEvent } from './useWindowEvent'
 
-// refresh rate defaults to every 5 minutes
 export default function useScheduledTimeSync() {
   const { layoutRefreshRate } = storeToRefs(useConfigurationStore())
 
   const time = ref<Temporal.PlainTime>(Temporal.Now.plainTimeISO())
-  const paused = ref(!navigator.onLine)
   const isRegistered = ref(false)
 
   let timeout = -1
@@ -34,6 +26,9 @@ export default function useScheduledTimeSync() {
       sync()
     }
   }
+
+  const { isOffline } = useOffline(pause, resume)
+  const paused = ref(isOffline.value)
 
   const sync = () => {
     if (!layoutRefreshRate.value) return
@@ -58,12 +53,6 @@ export default function useScheduledTimeSync() {
             sync()
           }
 
-          window.addEventListener('blur', pause)
-          window.addEventListener('focus', resume)
-
-          window.addEventListener('offline', pause)
-          window.addEventListener('online', resume)
-
           isRegistered.value = true
         }
       }
@@ -71,15 +60,10 @@ export default function useScheduledTimeSync() {
     { flush: 'post' },
   )
 
-  onUnmounted(() => {
-    pause()
+  onUnmounted(pause)
 
-    window.removeEventListener('blur', pause)
-    window.removeEventListener('focus', resume)
-
-    window.removeEventListener('offline', pause)
-    window.removeEventListener('online', resume)
-  })
+  useWindowEvent('blur', pause)
+  useWindowEvent('focus', resume)
 
   return {
     time,
