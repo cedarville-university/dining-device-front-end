@@ -38,8 +38,11 @@ interface TLayout {
 
 interface TLayoutColors {
   primary: string
+  primaryText: string
   secondary: string
+  secondaryText: string
   gray: string
+  grayText: string
 }
 
 interface TLayoutConfig {
@@ -160,6 +163,27 @@ db.on('populate', async (trans: Transaction) => {
     const veggie = { id: 5, apiName: 'Vegetarian Bar', name: 'Vegetarian Bar' }
     await trans.table('venues').add(veggie)
 
+    for (const venue of [
+      'Home Cooking - Breakfast',
+      'Home Cooking - Lunch',
+      'Home Cooking - Dinner',
+      'Allergen Aware - Lunch',
+      'Allergen Aware - Dinner',
+      'Garden Bites - Lunch',
+      'Habaneros',
+      'Power Bar',
+      'SubZone',
+      'Garden Bites - Dinner',
+      'Salad & Soup',
+      'Allergen Aware - Breakfast',
+      'Self Cook - Breakfast',
+      'Self Cook',
+      'Grille',
+      'Italian',
+    ]) {
+      trans.table('venues').add({ apiName: venue, name: venue })
+    }
+
     const menus: TConfigMenu[] = []
     let now = Temporal.Now.plainTimeISO()
     const venues = [breakfast, lunch, dinner, soup, veggie]
@@ -203,8 +227,11 @@ db.on('populate', async (trans: Transaction) => {
       layout: {
         colors: {
           primary: '#003865',
+          primaryText: '#ffffff',
           accent: '#fcb716',
+          accentText: '#ffffff',
           gray: '#efefef',
+          grayText: '#333333',
         },
         canvas: {
           bgColor: '#efefef',
@@ -222,7 +249,7 @@ db.on('populate', async (trans: Transaction) => {
       },
       device: {
         id: deviceId,
-        name: 'Mimo Adapt-IQV 10.1" Digital Signage Tablet',
+        name: 'Mimo Adapt-IQV 10.1 Digital Signage Tablet',
         model: 'MCT-10HPQ',
         dimensions: [
           {
