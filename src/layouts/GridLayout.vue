@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import MenuItemCard from '@/components/MenuItemCard.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import type { Venue } from '@/composables/useMenuData'
+import type { LayoutProps } from '@/components/types'
 import { useConfigurationStore } from '@/stores/configurationStore'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
-interface Props {
-  venue: Venue
-  withHeader?: boolean
-}
-
-const { venue, withHeader = true } = defineProps<Props>()
+const { venue, withHeader = true } = defineProps<LayoutProps>()
 const { orientation } = storeToRefs(useConfigurationStore())
 
 const menuItems = computed(() => {
