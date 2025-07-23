@@ -7,10 +7,9 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const appRoot = env.VITE_APP_ROOT
-  const apiUrl = env.VITE_API_URL
 
   return {
     plugins: [
@@ -24,9 +23,9 @@ export default defineConfig(({ command, mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         },
         manifest: {
-          name: 'Dining Devive Menu Viewer',
+          name: 'Dining Device Menu Viewer',
           short_name: 'Menu Viewer',
-          description: 'This application will be used to display menu data for the dining hall.',
+          description: 'Application used to display menu data for the dining hall.',
           theme_color: '#003865',
           background_color: '#ffffff',
           display: 'fullscreen',
@@ -86,20 +85,5 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     base: process.env.NODE_ENV === 'production' ? '/dining-device-front-end/' : '/',
-    // build: {
-    //   rollupOptions: {
-    //     output: {
-    //       chunkFileNames: (chunkFile) => {
-    //         // if (chunkFile.name === 'registerPeriodicSync') {
-    //         //   return '[name].js'
-    //         // }
-    //         return 'assets/[name]-[hash].js'
-    //       },
-    //       manualChunks: {
-    //         registerPeriodicSync: ['./src/registerPeriodicSync.js'],
-    //       },
-    //     },
-    //   },
-    // },
   }
 })
