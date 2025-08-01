@@ -28,7 +28,7 @@ const date = computed(() =>
 )
 
 const { venues, loading, error } = useMenuData(date)
-const { menus, layout } = storeToRefs(useConfigurationStore())
+const { menus } = storeToRefs(useConfigurationStore())
 
 const router = useRouter()
 const prev = () =>
