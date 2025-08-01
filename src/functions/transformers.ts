@@ -53,7 +53,16 @@ export function transformPioneerMenuToMenu(menuData: PioneerMenu): Menu {
         name: venue.venue_name,
         items: venue.menu_items.map((item) => ({
           name: item.item_name,
-          allergens: [...item.allergens],
+          isMainDish: item.allergens.some((allergen) => allergen.includes('isMainEntree'))
+            ? true
+            : item.allergens.some((allergen) => allergen.includes('isSideDish'))
+              ? false
+              : undefined,
+          allergens: [
+            ...item.allergens.filter(
+              (allergen) => !allergen.includes('isMainEntree') && !allergen.includes('isSideDish'),
+            ),
+          ],
         })),
       }
     }),

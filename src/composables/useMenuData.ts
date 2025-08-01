@@ -20,6 +20,7 @@ export interface Venue {
 export interface MenuItem {
   id?: number
   name: string
+  isMainDish?: boolean
   allergens: string[]
 }
 
