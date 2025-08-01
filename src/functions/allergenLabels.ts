@@ -12,4 +12,5 @@ export const allergenLabels = new Map<string, string>([
   ['https://my.pcconline.com/pccoffice/menu/images/isVegan.png', 'vegan'],
   ['https://my.pcconline.com/pccoffice/menu/images/hasFish.png', 'fish'],
   ['https://my.pcconline.com/pccoffice/menu/images/hasShellfish.png', 'shellfish'],
+  ['https://my.pcconline.com/pccoffice/menu/images/hasSesame.png', 'contains sesame'],
 ])
