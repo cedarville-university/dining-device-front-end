@@ -7,6 +7,7 @@ import EditDevice from '@/pages/config/EditDevice.vue'
 import EditDeviceDetails from '@/pages/config/EditDeviceDetails.vue'
 import EditMenus from '@/pages/config/EditMenus.vue'
 import { default as ConfigIndex } from '@/pages/config/Index.vue'
+import ResetDb from '@/pages/config/ResetDb.vue'
 import Index from '@/pages/Index.vue'
 import Kiosk from '@/pages/Kiosk.vue'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -43,6 +44,7 @@ const router = createRouter({
         },
         { path: appRoot + 'config/auth', name: 'edit-auth', component: EditAuth },
         { path: appRoot + 'config/api', name: 'edit-api', component: EditApi },
+        { path: appRoot + 'config/reset', name: 'reset-db', component: ResetDb },
       ],
     },
     {

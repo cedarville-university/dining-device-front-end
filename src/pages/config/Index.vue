@@ -37,6 +37,9 @@ useIdleTimeout(() => router.replace({ name: 'kiosk' }), 60000)
           <li class="flex">
             <NavLink :to="{ name: 'edit-api' }"> API Setup </NavLink>
           </li>
+          <li class="flex">
+            <NavLink :to="{ name: 'reset-db' }"> Reset </NavLink>
+          </li>
         </ul>
       </nav>
     </aside>
