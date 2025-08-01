@@ -65,8 +65,8 @@ const endsAt = computed(() => {
         </ul>
       </div>
       <div v-else class="space-y-4">
-        <h4 class="text-2xl font-semibold">No menu tomorrow</h4>
-        <p>There is no menu available for tomorrow. Check back tomorrow.</p>
+        <h4 class="text-2xl font-semibold">No Menu</h4>
+        <p>There is no menu data available for tomorrow.</p>
       </div>
     </InfoCard>
   </div>
