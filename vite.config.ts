@@ -84,6 +84,6 @@ export default defineConfig(({ mode }) => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
-    base: process.env.NODE_ENV === 'production' ? '/dining-device-front-end/' : '/',
+    base: process.env.NODE_ENV === 'production' ? appRoot : '/',
   }
 })
