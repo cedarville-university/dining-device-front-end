@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         },
         manifest: {
+          id: 'dining-device-frontet',
           name: 'Dining Device Menu Viewer',
           short_name: 'Menu Viewer',
           description: 'Application used to display menu data for the dining hall.',
@@ -31,6 +32,15 @@ export default defineConfig(({ mode }) => {
           display: 'fullscreen',
           scope: appRoot,
           start_url: appRoot + 'kiosk',
+          lang: 'en',
+          orientation: 'any',
+          display_override: [
+            'fullscreen',
+            'minimal-ui',
+            'standalone',
+            'browser',
+            'window-controls-overlay',
+          ],
           icons: [
             {
               src: appRoot + 'icons/apple-touch-icon-57x57.png',
@@ -70,6 +80,11 @@ export default defineConfig(({ mode }) => {
             {
               src: appRoot + 'icons/apple-touch-icon-152x152.png',
               sizes: '152x152',
+              type: 'image/png',
+            },
+            {
+              src: appRoot + 'icons/large-icon-558x558.png',
+              sizes: '558x558',
               type: 'image/png',
             },
           ],
