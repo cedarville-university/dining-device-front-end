@@ -12,7 +12,6 @@ const { orientation } = storeToRefs(useConfigurationStore())
 const menuItems = computed(() => {
   if (venue) {
     return venue.items.sort((itemA, itemB) => {
-      console.log(itemA.isMainDish, itemB.isMainDish)
       if (itemA.isMainDish) return -1
       if (itemB.isMainDish) return 1
       return 0
