@@ -47,7 +47,7 @@ const endsAt = computed(() => {
 
 <template>
   <div class="grid h-full place-content-center w-full">
-    <InfoCard :title="date.toLocaleString(undefined, { weekday: 'long' })">
+    <InfoCard :title="date.toLocaleString(undefined, { weekday: 'long' })" subtitle="Tomorrow">
       <div v-if="upcomingVenue" class="space-y-4">
         <div>
           <span class="text-gray-600 text-sm">{{ startsAt }} - {{ endsAt }}</span>
