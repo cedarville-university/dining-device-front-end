@@ -24,7 +24,7 @@ export interface MenuItem {
   allergens: string[]
 }
 
-const isValid = (menuData: Menu) => {
+export const isValidMenu = (menuData: Menu) => {
   return !menuData.venues.every((venue) => venue.name === 'No Venues Found')
 }
 
@@ -44,11 +44,12 @@ export default function useMenuData(
       if (forceFetchAndCache || !menuData) {
         loading.value = true
         menuData = (await Pioneer.fetchAndCache(date)) as TMenu
-      } else if (!isValid(menuData)) {
+      } else if (!isValidMenu(menuData)) {
         loading.value = true
         Pioneer.fetchAndCache(date)
           .then((menuData) => {
-            if (isValid(menuData)) {
+            if (isValidMenu(menuData)) {
+              console.log(menuData)
               data.value = menuData
             }
           })
