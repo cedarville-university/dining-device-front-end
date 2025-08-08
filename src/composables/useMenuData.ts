@@ -44,16 +44,14 @@ export default function useMenuData(
       if (forceFetchAndCache || !menuData) {
         loading.value = true
         menuData = (await Pioneer.fetchAndCache(date)) as TMenu
-      } else if (!isValidMenu(menuData)) {
-        loading.value = true
-        Pioneer.fetchAndCache(date)
-          .then((menuData) => {
-            if (isValidMenu(menuData)) {
-              console.log(menuData)
-              data.value = menuData
-            }
-          })
-          .finally(() => (loading.value = false))
+      } else {
+        // this will silently re-fetch the menu
+        // and update the localdb
+        Pioneer.fetchAndCache(date).then((menuData) => {
+          if (isValidMenu(menuData)) {
+            data.value = menuData
+          }
+        })
       }
 
       error.value = undefined
