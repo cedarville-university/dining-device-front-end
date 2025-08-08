@@ -1,4 +1,4 @@
-import type { Menu } from '@/composables/useMenuData'
+import { type Menu } from '@/composables/useMenuData'
 import { db } from '@/db'
 import { Temporal } from 'temporal-polyfill'
 import * as Venue from './venues'
@@ -13,12 +13,19 @@ export const add = (data: Menu) =>
     ...data,
   }))
 
+export const update = (id: number, data: Menu) => {
+  // @ts-ignore
+  db.menus.update(id, data)
+  return data
+}
+
 export const store = async (data: Menu) => {
   return get(data.date).then((menu) => {
+    Venue.add(data.venues)
     if (!menu) {
-      Venue.add(data.venues)
       return add(data)
     }
-    return menu
+
+    return update(menu.id, data)
   })
 }
